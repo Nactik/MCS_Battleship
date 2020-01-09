@@ -9,4 +9,6 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <sys/select.h>
-#define NB_PLAYER 2
+#define NB_PLAYER 20
+#define MAX_BUFF 1024
+char buffer[MAX_BUFF];

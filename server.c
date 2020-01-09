@@ -1,8 +1,33 @@
 #include "include/header.h"
+#include "include/server.h"
 
-int checkeConnected(int * tabSocket) {
-    for(int i=0;i<NB_PLAYER;i++){
-        
+void dialogueClt (int sd, struct sockaddr_in clt) {
+    char requete[MAX_BUFF];
+    do {
+        read(sd, buffer, sizeof(buffer));
+        sscanf (buffer, "%s:%s",requete, buffer);
+        switch (atoi(requete)) {
+            case 0 : 
+                printf("Au revoir\n"); 
+                break;
+            case 100 : 
+                write(sd, OK, strlen(OK)+1);
+                printf("OK : message recu %s\n", buffer);
+                break;
+            default : 
+                write(sd, NOK, strlen(NOK)+1);
+                printf("NOK : message recu %s\n", buffer); 
+                break;
+        }
+    } while(atoi(requete) != 0);
+} 
+
+void deroute(int signal){
+    int ret;
+    switch(signal){
+        case SIGCHLD :
+            wait(&ret);
+            break;
     }
 }
 
@@ -11,9 +36,10 @@ int main(int argc, char ** argv){
     struct sockaddr_in svc, clt;
     socklen_t cltLen;
     pid_t pid;
-    fd_set rfsd; //set de canaux à multiplexer
-    int socketPlayer[NB_PLAYER] = "";
+    Lobby * tabLobby;
 
+    signal(SIGCHLD,deroute);
+    
     // Création de la socket de réception d’écoute des appels
     CHECK(se=socket(PF_INET, SOCK_STREAM, 0), "Can't create");
     puts("Création socket écoute");
@@ -36,16 +62,25 @@ int main(int argc, char ** argv){
     // Mise en écoute de la socket
     CHECK(listen(se, NB_PLAYER) , "Can't calibrate");
     puts("Mise en écoute socket écoute");
-
-    FD_ZERO(&rfsd);
-    FD_SET(se,&rfsd);
-
-    while(1){
-        if(FD_ISSET(se,&rfsd)){
-            // Attente d’un appel
-            cltLen = sizeof(clt);
-            CHECK(sd=accept(se,(struct sockaddr *) &clt, &cltLen),"Can't connect");
-            FD_SET(sd,&rfsd);
-        } 
+    
+    // Boucle permanente de service
+    while (1) {
+        // Attente d’un appel
+        cltLen = sizeof(clt);
+        CHECK(sd=accept(se,(struct sockaddr *) &clt, &cltLen),"Can't connect");
+        puts("Attente socket écoute et création socket discussion");
+    
+        switch(pid = fork()){
+            case -1 : 
+                perror("erreur fork");
+                break;
+            case 0 :
+                // Dialogue avec le client
+                dialogueClt(sd,clt);
+                shutdown(sd,2);
+                kill(SIGCHLD,getppid());
+                exit(0);
+                break;
+        };
     }
 }
