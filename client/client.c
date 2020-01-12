@@ -1,9 +1,12 @@
 #include "clientUtils.h"
+int port; 
+char ipAddr[15]; 
 
 void dialogueSrv (int sock, struct sockaddr_in srv) {
     
-    int choix; 
-    char pseudo[MAX_PLAYER_NAME], msgToSend[MAX_BUFF], msgToRead[MAX_BUFF], numReq[MAX_BUFF]; 
+    int choix, numLobby; 
+    char msgToSend[MAX_BUFF], msgToRead[MAX_BUFF], numReq[MAX_BUFF]; 
+    char pseudo[MAX_PLAYER_NAME], buffer[100]; 
 
     //Message de bienvenu
     CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
@@ -28,8 +31,7 @@ void dialogueSrv (int sock, struct sockaddr_in srv) {
                 case 105 : 
                     printf("%s", msgToRead); 
                     break;
-        }
-
+            }
         } while ( atoi(numReq) != 106);
     }
 
@@ -38,16 +40,18 @@ void dialogueSrv (int sock, struct sockaddr_in srv) {
     switch (choix)
     {
         case 1: //Créer un lobby
+            printf("Veuillez indiquer un nom de salle:"); 
+            scanf("%s", buffer); 
+            sprintf(msgToSend, "%d:%d:%s:%d", 200, buffer, ipAddr, port); 
+            CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
             break;
-
-        case 2: //Jouer sur un lobby existant
-            
-            break;
-
-        case 3: //Etre spectateur sur un lobby existant  
-
+        case 2: //Jouer sur un lobby existant ou etre spectateur sur une partie en cours
+        case 3: 
+            printf("Veuillez indiquer le numéro de sur lequel jouer:"); 
+            scanf("%d", numLobby);
+            sprintf(msgToSend, "%d:%d", 300, numLobby); 
+            CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
             break; 
-
         case 4: //Quitter 
             return; 
             break;
@@ -91,7 +95,8 @@ int main(int argc, char ** argv){
     cltlen = sizeof(clt); 
     CHECK(getsockname(sock, (struct sockaddr *) &clt, &cltlen), "Can't get sockname"); 
     printf("Client -> [ %s ] utilise le port %d pour communiquer.\n\n", inet_ntoa(clt.sin_addr), ntohs(clt.sin_port)); 
-   
+    strncpy(ipAddr, inet_ntoa(clt.sin_addr), 15); 
+    port= ntohs(clt.sin_port); 
     
     //Dialogue avec le serveur
     dialogueSrv(sock, svc);
