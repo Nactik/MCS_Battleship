@@ -6,3 +6,7 @@ server : server.c serverUtils.o
 
 serverUtils.o : serverUtils.c 
 	gcc -c serverUtils.c
+
+clean:
+	rm -rf serverUtils.o
+	rm -rf ../bin/server
