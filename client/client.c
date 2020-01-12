@@ -33,13 +33,16 @@ void dialogueSrv (int sock, struct sockaddr_in srv) {
             sprintf(msgToSend, "%d", PRINT_LOB); 
             CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
             do {
+                puts("On va read le message");
                 CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
                 sscanf (msgToRead, "%d:%s", &numReq, msgToRead);
-                switch (numReq) {
+                printf("%s", msgToRead); 
+
+                /*switch (numReq) {
                     case 105 : //num a changer par variable 
                         printf("%s", msgToRead); 
                         break;
-                }
+                }*/
             } while ( numReq != 106); //num a changer par variable
         break; 
         case 2: //Créer un lobby

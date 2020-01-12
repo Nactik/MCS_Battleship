@@ -2,37 +2,43 @@
 
 void dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
     char requete[MAX_BUFF];
+    char content[MAX_BUFF];
+    int req;
     char toSend[MAX_BUFF];
     //write(sd,WELCOME,strlen(WELCOME)+1);
 
     do {
         read(sd, buffer, sizeof(buffer));
-        sscanf (buffer, "%s:%s",requete, buffer);
-        switch (atoi(requete)) {
+        sscanf (buffer, "%d:%s",&req, content);
+        printf("Req : %d\n", req);
+        printf("Buffer : %s \n",content);
+        switch (req) {
             case CONNECT_SRV : 
-                if(connectToServer(buffer) == 1){
+                if(connectToServer(content) == 1){
                     sprintf(toSend,"%d,%s",CONNECT_SRV_OK,"Joueur connecté !");
-                    write(sd,toSend,strlen(toSend)+1);
+                    //write(sd,toSend,strlen(toSend)+1);
                 } else {
                     write(sd,ERREUR,strlen(ERREUR)+1);
                 }
                 break;
                 
             case CREATE_LOB : 
-                createLobby(server,buffer);
+                puts("CREATION LOBBY");
+                createLobby(server,content);
                 break;
             case CONNECT_LOB: 
-                connectToLobby(*server,sd,buffer);
+                connectToLobby(*server,sd,content);
                 break;
 
             case PRINT_LOB:
+                puts("Affichage lobby");
                 printLobby(sd,*server);
                 break;
             default : 
                 write(sd, ERREUR, strlen(ERREUR)+1);
                 break;
         }
-    } while(atoi(requete) != 0);
+    } while(req != 0);
 } 
 
 void deroute(int signal){
@@ -51,6 +57,7 @@ int main(int argc, char ** argv){
     socklen_t cltLen;
     pid_t pid;
     Server server;
+    server.nb=0;
     fd_set rfds;   
 
     //initialise all client_socket[] to 0 so not checked  

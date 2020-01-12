@@ -1,6 +1,6 @@
 #include "../include/header.h"
 #define MAX_NAME_LOBBY 25
-#define WELCOME "Bienvenue sur la bataille navale ! "
+#define WELCOME "Bienvenue sur la bataille navale ! \n"
 
 typedef struct Joueur{
     char pseudo[MAX_PLAYER_NAME];
