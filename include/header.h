@@ -11,7 +11,6 @@
 #include <sys/select.h>
 #define NB_PLAYER 20
 #define MAX_BUFF 1024
-char buffer[MAX_BUFF];
 #define CONNECT_SRV     "100:Demande de connection au serveur"
 #define CREATE_LOB      "200:Crée un salon de jeu"
 #define CONNECT_LOB     "300:Demande de connexion à un salon de jeu"    
