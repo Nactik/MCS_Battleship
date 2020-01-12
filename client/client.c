@@ -23,36 +23,39 @@ void dialogueSrv (int sock, struct sockaddr_in srv) {
     if(strcmp(msgToRead, "KO")){ //Pb survenu, on quitte 
         printf("Problème survenu\n");
         return;  
-    }else { //Ok + liste de lobbys envoyé par le serveur
-        do {
-            CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
-            sscanf (msgToRead, "%s:%s", numReq, msgToRead);
-            switch (atoi(numReq)) {
-                case 105 : 
-                    printf("%s", msgToRead); 
-                    break;
-            }
-        } while ( atoi(numReq) != 106);
     }
-
+    
     choix = displayMenu(); //Affichage du menu + choix 
 
     switch (choix)
     {
-        case 1: //Créer un lobby
+        case 1: //Afficher les lobbys dispo
+            sprintf(msgToSend, "%d", LIST_LOB, pseudo); 
+            CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
+            do {
+                CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
+                sscanf (msgToRead, "%s:%s", numReq, msgToRead);
+                switch (atoi(numReq)) {
+                    case 105 : //num a changer par variable 
+                        printf("%s", msgToRead); 
+                        break;
+                }
+            } while ( atoi(numReq) != 106); //num a changer par variable
+        break; 
+        case 2: //Créer un lobby
             printf("Veuillez indiquer un nom de salle:"); 
             scanf("%s", buffer); 
             sprintf(msgToSend, "%d:%d:%s:%d", 200, buffer, ipAddr, port); 
             CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
             break;
-        case 2: //Jouer sur un lobby existant ou etre spectateur sur une partie en cours
-        case 3: 
+        case 3: //Jouer sur un lobby existant ou etre spectateur sur une partie en cours
+        case 4: 
             printf("Veuillez indiquer le numéro de sur lequel jouer:"); 
             scanf("%d", numLobby);
             sprintf(msgToSend, "%d:%d", 300, numLobby); 
             CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
             break; 
-        case 4: //Quitter 
+        case 5: //Quitter 
             return; 
             break;
     

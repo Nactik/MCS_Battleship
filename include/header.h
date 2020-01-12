@@ -13,6 +13,7 @@
 #define MAX_BUFF 1024
 #define CONNECT_SRV     "100:Demande de connection au serveur"
 #define CREATE_LOB      "200:Crée un salon de jeu"
+#define LIST_LOB        "150"
 #define CONNECT_LOB     "300:Demande de connexion à un salon de jeu"    
 #define ATTACK          "400:Attaque le plateau ennemie à une position donnée"
 #define CONNECT_SRV_OK  "102:Connexion au serveur acceptée"
