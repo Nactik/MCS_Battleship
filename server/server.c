@@ -1,9 +1,9 @@
-#include "server/serverUtils.h"
+#include "serverUtils.h"
 
-void dialogueClt (int sd, struct sockaddr_in clt) {
+void dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
     char requete[MAX_BUFF];
     char toSend[MAX_BUFF];
-    write(sd,WELCOME,strlen(WELCOME)+1);
+    //write(sd,WELCOME,strlen(WELCOME)+1);
 
     do {
         read(sd, buffer, sizeof(buffer));
@@ -11,22 +11,25 @@ void dialogueClt (int sd, struct sockaddr_in clt) {
         switch (atoi(requete)) {
             case CONNECT_SRV : 
                 if(connectToServer(buffer) == 1){
-                    sprintf(toSend,"%d,%s",CONNECT_SRV_OK,"Salle crée !");
-                    write(sd,toSend,toSend+1);
+                    sprintf(toSend,"%d,%s",CONNECT_SRV_OK,"Joueur connecté !");
+                    write(sd,toSend,strlen(toSend)+1);
                 } else {
-                    write(sd,ERREUR,ERREUR+1);
+                    write(sd,ERREUR,strlen(ERREUR)+1);
                 }
                 break;
                 
             case CREATE_LOB : 
-                createLobby(buffer);
+                createLobby(server,buffer);
                 break;
             case CONNECT_LOB: 
+                connectToLobby(*server,sd,buffer);
+                break;
 
+            case PRINT_LOB:
+                printLobby(sd,*server);
                 break;
             default : 
-                write(sd, NOK, strlen(NOK)+1);
-                printf("NOK : message recu %s\n", buffer); 
+                write(sd, ERREUR, strlen(ERREUR)+1);
                 break;
         }
     } while(atoi(requete) != 0);
@@ -42,14 +45,22 @@ void deroute(int signal){
 }
 
 int main(int argc, char ** argv){
-    int se, sd,svcLen,ret,status;
+    int se, sd,svcLen,ret,status,max_sd,activity;
+    int client_socket[NB_PLAYER];
     struct sockaddr_in svc, clt;
     socklen_t cltLen;
     pid_t pid;
-    Lobby * tabLobby;
+    Server server;
+    fd_set rfds;   
 
-    signal(SIGCHLD,deroute);
-    
+    //initialise all client_socket[] to 0 so not checked  
+    for (int i = 0; i < NB_PLAYER; i++)   
+    {   
+        client_socket[i] = 0;   
+    }   
+         
+    //signal(SIGCHLD,deroute);
+    signal(SIGINT,deroute);
     // Création de la socket de réception d’écoute des appels
     CHECK(se=socket(PF_INET, SOCK_STREAM, 0), "Can't create");
     puts("Création socket écoute");
@@ -75,8 +86,71 @@ int main(int argc, char ** argv){
 
     // Boucle permanente de service
     while (1) {
-        // Attente d’un appel
-        cltLen = sizeof(clt);
+
+        //clear the socket set  
+        FD_ZERO(&rfds);   
+     
+        //add master socket to set  
+        FD_SET(se, &rfds);   
+        max_sd = se;   
+             
+        //add child sockets to set  
+        for (int i = 0 ; i < NB_PLAYER ; i++)   {   
+            //socket descriptor  
+            sd = client_socket[i];   
+            if(sd > 0)   
+                FD_SET(sd,&rfds);   
+            if(sd > max_sd)   
+                max_sd = sd;   
+        }   
+
+        CHECK(activity = select( max_sd + 1 , &rfds , NULL , NULL , NULL),"Erreur");   
+
+        //If something happened on the master socket ,  
+        //then its an incoming connection  
+        if (FD_ISSET(se, &rfds)) {   
+            cltLen = sizeof(clt);
+            CHECK(sd=accept(se,(struct sockaddr *) &clt, &cltLen),"Can't connect");
+
+            //inform user of socket number - used in send and receive commands  
+            printf("New connection , socket fd is %d , ip is : %s , port : %d\n",
+                    sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
+           
+            //send new connection greeting message  
+            write(sd,WELCOME,strlen(WELCOME)+1);
+
+            puts("Welcome message sent successfully");   
+                 
+            //add new socket to array of sockets  
+            for (int i = 0; i < NB_PLAYER; i++)   
+            {   
+                //if position is empty  
+                if(client_socket[i] == 0 )   
+                {   
+                    client_socket[i] = sd;   
+                    printf("Adding to list of sockets as %d\n" , i);   
+                    break;   
+                }   
+            }   
+        }
+
+        //else its some IO operation on some other socket 
+        for (int i = 0; i < NB_PLAYER; i++)   
+        {   
+            sd = client_socket[i];   
+                 
+            if (FD_ISSET(sd,&rfds)){   
+
+                dialogueClt(&server,sd,clt);
+                //Close the socket and mark as 0 in list for reuse  
+                shutdown(sd,2);
+                client_socket[i] = 0; 
+            }   
+        }
+
+
+
+        /*Attente d’un appel
         CHECK(sd=accept(se,(struct sockaddr *) &clt, &cltLen),"Can't connect");
         puts("Attente socket écoute et création socket discussion");
     
@@ -86,11 +160,11 @@ int main(int argc, char ** argv){
                 break;
             case 0 :
                 // Dialogue avec le client
-                dialogueClt(sd,clt);
+                dialogueClt(&server,sd,clt);
                 shutdown(sd,2);
                 kill(SIGCHLD,getppid());
                 exit(0);
                 break;
-        };
+        };*/
     }
 }
