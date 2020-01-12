@@ -1,4 +1,4 @@
-#include "include/header.h"
+#include "../include/header.h"
 #define MAX_NAME_LOBBY 25
 #define WELCOME "Bienvenue sur la bataille navale ! "
 
@@ -14,11 +14,14 @@ typedef struct Lobby {
     int port;
 } Lobby;
 
-Joueur * tabJoueur; //tableau de joueur
-Lobby * tabLobby; // tableau de Lobby
+typedef struct Server {
+    Lobby * tabLobby;
+    int nb;
+} Server;
 
 int addPlayer(char * pseudo);
 int connectToServer(char * buffer);
-void createLobby(char * buffer);
-void printLobby(int sd);
-int addLobby(char * lobbyName,char * ip, int port)
+int createLobby(Server * server,char * buffer);
+int connectToLobby(Server server,int sd, char * buffer);
+void printLobby(int sd, Server server);
+int addLobby(Server * server, char * lobbyName,char * ip, int port);
