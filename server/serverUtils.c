@@ -2,19 +2,21 @@
 
 void printLobby(int sd, Server server){
     char * line;
-    sprintf(line,"-----\n");
+    sprintf(line,"%d:-----\n",105);
     write(sd,line,strlen(line)+1);
-    sprintf(line,"|%7s|%20s|%10s|\n","Numéro","Nom de la salle","Joueurs");
+    sprintf(line,"%d:|%7s|%20s|%10s|\n",105,"Numéro","Nom de la salle","Joueurs");
     write(sd,line,strlen(line)+1);
-    sprintf(line,"-----\n");
+    sprintf(line,"%d:-----\n",105);
     write(sd,line,strlen(line)+1);
 
     for(int i=0;i<server.nb;i++){
-        sprintf(line,"|%7d|%20s|%8d/2|\n",server.tabLobby[i].numero,server.tabLobby[i].nom,server.tabLobby[i].nb_joueur);
+        sprintf(line,"%d:|%7d|%20s|%8d/2|\n",105,server.tabLobby[i].numero,server.tabLobby[i].nom,server.tabLobby[i].nb_joueur);
         write(sd,line,strlen(line)+1);
     }
 
-    sprintf(line,"-----\n");
+    sprintf(line,"%d:-----\n",105);
+    write(sd,line,strlen(line)+1);
+    sprintf(line,"%d:\n",106);
     write(sd,line,strlen(line)+1);
 }
 
