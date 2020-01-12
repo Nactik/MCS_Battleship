@@ -27,6 +27,4 @@ char buffer[MAX_BUFF];
 #define CONNECT_SRV_OK  102
 #define CONNECT_LOB_OK  302
 #define RESULT_ATK      500
-#define DISCONNECT      600
 #define ERREUR          "KO:Une erreur est survenue ! Réesayer"
-
