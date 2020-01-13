@@ -1,6 +1,7 @@
 #include "serverUtils.h"
 
 void dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
+    char receive[MAX_BUFF];
     char requete[MAX_BUFF];
     char content[MAX_BUFF];
     int req;
@@ -8,17 +9,17 @@ void dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
     //write(sd,WELCOME,strlen(WELCOME)+1);
 
     do {
-        read(sd, buffer, sizeof(buffer));
-        sscanf (buffer, "%d:%s",&req, content);
+        CHECK(read(sd, receive, sizeof(receive)),"erreur read");
+        sscanf (receive, "%d:%s",&req, content);
         printf("Req : %d\n", req);
         printf("Buffer : %s \n",content);
         switch (req) {
             case CONNECT_SRV : 
                 if(connectToServer(content) == 1){
                     sprintf(toSend,"%d,%s",CONNECT_SRV_OK,"Joueur connecté !");
-                    //write(sd,toSend,strlen(toSend)+1);
+                    write(sd,toSend,strlen(toSend)+1);
                 } else {
-                    write(sd,ERREUR,strlen(ERREUR)+1);
+                   // write(sd,ERREUR,strlen(ERREUR)+1);
                 }
                 break;
                 
@@ -69,11 +70,11 @@ int main(int argc, char ** argv){
     //signal(SIGCHLD,deroute);
     signal(SIGINT,deroute);
     // Création de la socket de réception d’écoute des appels
-    CHECK(se=socket(PF_INET, SOCK_STREAM, 0), "Can't create");
+    CHECK(se=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
     puts("Création socket écoute");
 
     // Préparation de l’adressage du service (d’appel)
-    svc.sin_family = PF_INET;
+    svc.sin_family = AF_INET;
     svc.sin_port = htons(0);
     svc.sin_addr.s_addr = INADDR_ANY;
     memset(&svc.sin_zero, 0, 8);
