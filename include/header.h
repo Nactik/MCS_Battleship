@@ -17,11 +17,11 @@
 #define MAX_LENGTH_IP 15
 #define MAX_PLAYER_NAME 25
 
-char buffer[MAX_BUFF];
 #define CONNECT_SRV     100
 #define CREATE_LOB      200
 #define CONNECT_LOB     300
 #define PRINT_LOB       150
+#define OK              151
 
 #define ATTACK          400
 #define CONNECT_SRV_OK  102
