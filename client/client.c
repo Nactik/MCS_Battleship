@@ -17,14 +17,9 @@ void dialogueSrv (int sock, struct sockaddr_in srv) {
     scanf("%s", pseudo); 
     sprintf(msgToSend, "%d:%s",CONNECT_SRV, pseudo); 
     CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
+    CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
+    printf("%s\n",msgToRead);
 
-    //Attente de la réponse serveur et  affichage des salons disponibles envoyés par le serveur
-    /*CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
-    if(strcmp(msgToRead, "KO")){ //Pb survenu, on quitte 
-        printf("Problème survenu\n");
-        return;  
-    }*/
-    
     do{
         choix = displayMenu();
         switch (choix)
@@ -33,14 +28,13 @@ void dialogueSrv (int sock, struct sockaddr_in srv) {
                 sprintf(msgToSend, "%d", PRINT_LOB); 
                 CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
                 do {
+                    
                     CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
                     sscanf (msgToRead, "%d:%s", &numReq, msgToRead);
                     printf("%s\n", msgToRead); 
                     sprintf(msgToSend, "%d", OK); 
                     CHECK(write(sock,msgToSend,strlen(msgToSend)+1),"erreur write");
                 } while ( numReq != 106); //num a changer par variable
-                    CHECK(write(sock,msgToSend,strlen(msgToSend)+1),"erreur write");
-
             break; 
             case 2: //Créer un lobby
                 printf("Veuillez indiquer un nom de salle:"); 
@@ -55,10 +49,6 @@ void dialogueSrv (int sock, struct sockaddr_in srv) {
                 sprintf(msgToSend, "%d:%d", 300, numLobby); 
                 CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
                 break; 
-            case 5: //Quitter 
-                return; 
-                break;
-        
             default:
                 break;
         }

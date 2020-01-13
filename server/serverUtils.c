@@ -30,11 +30,10 @@ void printLobby(int sd, Server server){
 
     for(int i=0;i<server.nb;i++){
         sprintf(line,"%d:|%7d|%20s|%8d/2|",105,server.tabLobby[i].numero,server.tabLobby[i].nom,server.tabLobby[i].nb_joueur);
-        printf("%\n",line);
+        printf("%s\n",line);
         // getchar();
         write(sd,line,strlen(line)+1);
         CHECK(read(sd,recv,sizeof(recv)),"erreur read");
-
     }
 
     sprintf(line,"%d:+------+--------------------+----------+",105);
@@ -48,8 +47,7 @@ void printLobby(int sd, Server server){
     printf("%s\n",line);
     // getchar();
     write(sd,line,strlen(line)+1);
-    CHECK(read(sd,recv,sizeof(recv)),"erreur read");
-
+    CHECK(read(sd,recv,sizeof(recv)),"106");
 }
 
 int connectToServer(char * buffer){

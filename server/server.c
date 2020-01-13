@@ -34,6 +34,8 @@ void dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
             case PRINT_LOB:
                 puts("Affichage lobby");
                 printLobby(sd,*server);
+                puts("J'ai fini l'affichage");
+
                 break;
             default : 
                 write(sd, ERREUR, strlen(ERREUR)+1);
