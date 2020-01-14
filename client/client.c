@@ -57,7 +57,7 @@ int main(int argc, char ** argv){
     struct sockaddr_in clt;
 
     if(argc != 3){
-        printf("Erreur, rentrez les bons arguments"); 
+        printf("Erreur, rentrez les bons arguments\n"); 
         return 0; 
     }
     

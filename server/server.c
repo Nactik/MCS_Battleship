@@ -46,15 +46,6 @@ int dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
     return req;
 } 
 
-void deroute(int signal){
-    int ret;
-    switch(signal){
-        case SIGCHLD :
-            wait(&ret);
-            break;
-    }
-}
-
 int main(int argc, char ** argv){
     int se, sd,svcLen,ret,status,max_sd,activity,retDial;
     int client_socket[NB_PLAYER];
@@ -69,9 +60,7 @@ int main(int argc, char ** argv){
     {   
         client_socket[i] = 0;   
     }   
-         
-    //signal(SIGCHLD,deroute);
-    signal(SIGINT,deroute);
+
     // Création de la socket de réception d’écoute des appels
     CHECK(se=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
     puts("Création socket écoute");

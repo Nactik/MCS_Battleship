@@ -10,7 +10,7 @@ typedef struct Lobby {
     int numero;
     char nom[MAX_NAME_LOBBY];
     int nb_joueur;
-    char * ip;
+    char ip[MAX_LENGTH_IP];
     int port;
 } Lobby;
 

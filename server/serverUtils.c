@@ -66,21 +66,21 @@ int addPlayer(char * pseudo){
 }  
 
 int addLobby(Server * server,char * lobbyName,char * ip, int port){
-    puts("On veut ajouter un lobby");
+    puts("Ajout d'un lobby ...");
 
-    int oldMemSize = (server->tabLobby == NULL) ? 0 : sizeof(server->tabLobby);
+    int oldMemSize = (server->tabLobby == NULL) ? 0 : sizeof(server->tabLobby); 
     if(oldMemSize == 0)
         server->nb = 0;
 
     Lobby newLobby;
     strcpy(newLobby.nom,lobbyName);
-    strcpy(newLobby.ip,ip);
+    strcpy(newLobby.ip,ip);   
     newLobby.port = port;
     newLobby.nb_joueur = 1;
 
     server->tabLobby = (Lobby *) realloc(server->tabLobby, oldMemSize + sizeof(newLobby));
     newLobby.numero = server->nb;
     server->tabLobby[server->nb++] = newLobby;
-    puts("normalement c'est bon mdr");
+    puts("... lobby créé");
     return 1;
 }  
