@@ -45,7 +45,7 @@ void printLobby(int sock){
         CHECK(write(sock,msgToSend,strlen(msgToSend)+1),"erreur write");
     } while ( numReq != END_LOBBY); 
 
-    puts("\t+------+--------------------+----------+");
+    puts("\t+------+--------------------+----------+\n");
 }
 
 void createLobby(int sock_server, int * sock_lobby){
