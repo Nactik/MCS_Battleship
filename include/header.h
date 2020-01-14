@@ -27,6 +27,7 @@
 #define PRINT_LOB       400
 #define HAS_LOBBY       401
 #define END_LOBBY       402
+#define OK              151
 
 #define ATTACK          500
 #define RESULT_ATK      600
