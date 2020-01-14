@@ -60,7 +60,7 @@ void createLobby(int sock_server, int * sock_lobby){
     
     //Préparation de l’adressage du service à contacte
     svc_lobby.sin_family = AF_INET;
-    svc_lobby.sin_port = htons(atoi(0)); //Donne port aléa  
+    svc_lobby.sin_port = htons(0); //Donne port aléa  
     svc_lobby.sin_addr.s_addr = INADDR_ANY; 
     memset(&svc_lobby.sin_zero, 0, 8);
 
@@ -71,5 +71,5 @@ void createLobby(int sock_server, int * sock_lobby){
     sockLen = sizeof(svc_lobby); 
     CHECK(getsockname(*sock_lobby, (struct sockaddr *) &svc_lobby, &sockLen), "Can't get sockname"); 
     sprintf(msgToSend, "%d:%s:%d", CREATE_LOB, buffer,  ntohs(svc_lobby.sin_port)); 
-    CHECK(write(sock_lobby, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
+    CHECK(write(sock_server, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
 }

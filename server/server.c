@@ -6,7 +6,6 @@ int dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
     char content[MAX_BUFF];
     int req;
     char toSend[MAX_BUFF];
-    //write(sd,WELCOME,strlen(WELCOME)+1);
 
     CHECK(read(sd, receive, sizeof(receive)),"erreur read");
     sscanf (receive, "%d:%s",&req, content);
@@ -18,13 +17,13 @@ int dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
                 sprintf(toSend,"%d,%s",CONNECT_SRV_OK,"Joueur connecté !");
                 write(sd,toSend,strlen(toSend)+1);
             } else {
-                // write(sd,ERREUR,strlen(ERREUR)+1);
+                write(sd,ERREUR,strlen(ERREUR)+1);
             }
             break;
             
         case CREATE_LOB : 
             puts("CREATION LOBBY");
-            createLobby(server,content);
+            createLobby(sd,server,content);
             break;
         case CONNECT_LOB: 
             connectToLobby(*server,sd,content);

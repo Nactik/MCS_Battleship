@@ -43,12 +43,18 @@ int connectToLobby(Server server,int sd, char * buffer){
 }
 
 
-int createLobby(Server * server, char * buffer){
+int createLobby(int sd,Server * server, char * buffer){
     char lobbyName[MAX_NAME_LOBBY];
     char ip[MAX_LENGTH_IP];
     int port;
+    struct sockaddr_in clt;
+
+    int cltLen = sizeof(clt);
+    CHECK(getsockname(sd,(struct sockaddr *) &clt,&cltLen),"test");
+    strcpy(ip,inet_ntoa(clt.sin_addr));
+    
     printf("%s\n",buffer);
-    sscanf (buffer, "%[^:]:%[^:]:%d",lobbyName,ip,&port);
+    sscanf (buffer, "%[^:]:%d",lobbyName,&port);
     printf("Lobby à créer : %s, %s, %d\n",lobbyName,ip,port);
     return addLobby(server,lobbyName,ip,port);
 }
