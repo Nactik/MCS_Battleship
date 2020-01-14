@@ -72,4 +72,11 @@ void createLobby(int sock_server, int * sock_lobby){
     CHECK(getsockname(*sock_lobby, (struct sockaddr *) &svc_lobby, &sockLen), "Can't get sockname"); 
     sprintf(msgToSend, "%d:%s:%d", CREATE_LOB, buffer,  ntohs(svc_lobby.sin_port)); 
     CHECK(write(sock_server, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
+
+    // Mise en écoute de la socket
+    CHECK(listen(*sock_lobby, 1) , "Can't calibrate");
+    puts("Mise en écoute socket écoute");
+    fflush(stdout); 
+    getchar(); 
+    shutdown(*sock_lobby, 2); 
 }
