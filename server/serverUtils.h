@@ -1,5 +1,6 @@
 #include "../include/header.h"
 #define WELCOME "Bienvenue sur la bataille navale ! \n"
+#define BYE "Au revoir et à bientot sur la bataille navale !"
 
 typedef struct Joueur{
     char pseudo[MAX_PLAYER_NAME];

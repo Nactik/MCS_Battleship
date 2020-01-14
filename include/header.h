@@ -18,6 +18,7 @@
 #define MAX_PLAYER_NAME 25
 #define MAX_NAME_LOBBY 25
 
+#define DISCONNECT      0
 #define CONNECT_SRV     100
 #define CREATE_LOB      200
 #define CONNECT_LOB     300

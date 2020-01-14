@@ -2,7 +2,7 @@
 int port; 
 char ipAddr[15]; 
 
-void dialogueSrv (int sock, struct sockaddr_in srv) {
+int dialogueSrv (int sock, struct sockaddr_in srv) {
     
     int choix, numLobby,numReq; 
     char msgToSend[MAX_BUFF], msgToRead[MAX_BUFF]; 
@@ -41,9 +41,13 @@ void dialogueSrv (int sock, struct sockaddr_in srv) {
                 CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
                 break; 
             default:
+                sprintf(msgToSend, "%d", DISCONNECT); 
+                CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
+                CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
+                printf("%s\n\n",msgToRead);
                 break;
         }
-    }while(choix != 5); //Affichage du menu + choix 
+    }while(choix!=5);
 }  
 
 int main(int argc, char ** argv){
@@ -81,8 +85,6 @@ int main(int argc, char ** argv){
     
     //Dialogue avec le serveur
     dialogueSrv(sock, svc);
-    
-  
     shutdown(sock,2);
     
     return 0;

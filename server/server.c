@@ -1,6 +1,6 @@
 #include "serverUtils.h"
 
-void dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
+int dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
     char receive[MAX_BUFF];
     char requete[MAX_BUFF];
     char content[MAX_BUFF];
@@ -8,40 +8,42 @@ void dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
     char toSend[MAX_BUFF];
     //write(sd,WELCOME,strlen(WELCOME)+1);
 
-    do {
-        CHECK(read(sd, receive, sizeof(receive)),"erreur read");
-        sscanf (receive, "%d:%s",&req, content);
-        printf("Req : %d\n", req);
-        printf("Buffer : %s \n",content);
-        switch (req) {
-            case CONNECT_SRV : 
-                if(connectToServer(content) == 1){
-                    sprintf(toSend,"%d,%s",CONNECT_SRV_OK,"Joueur connecté !");
-                    write(sd,toSend,strlen(toSend)+1);
-                } else {
-                   // write(sd,ERREUR,strlen(ERREUR)+1);
-                }
-                break;
-                
-            case CREATE_LOB : 
-                puts("CREATION LOBBY");
-                createLobby(server,content);
-                break;
-            case CONNECT_LOB: 
-                connectToLobby(*server,sd,content);
-                break;
+    CHECK(read(sd, receive, sizeof(receive)),"erreur read");
+    sscanf (receive, "%d:%s",&req, content);
+    printf("Req : %d\n", req);
+    printf("Buffer : %s \n",content);
+    switch (req) {
+        case CONNECT_SRV : 
+            if(connectToServer(content) == 1){
+                sprintf(toSend,"%d,%s",CONNECT_SRV_OK,"Joueur connecté !");
+                write(sd,toSend,strlen(toSend)+1);
+            } else {
+                // write(sd,ERREUR,strlen(ERREUR)+1);
+            }
+            break;
+            
+        case CREATE_LOB : 
+            puts("CREATION LOBBY");
+            createLobby(server,content);
+            break;
+        case CONNECT_LOB: 
+            connectToLobby(*server,sd,content);
+            break;
 
-            case PRINT_LOB:
-                puts("Affichage lobby");
-                printLobby(sd,*server);
-                puts("J'ai fini l'affichage");
+        case PRINT_LOB:
+            puts("Affichage lobby");
+            printLobby(sd,*server);
+            puts("J'ai fini l'affichage");
 
-                break;
-            default : 
-                write(sd, ERREUR, strlen(ERREUR)+1);
-                break;
-        }
-    } while(req != 0);
+            break;
+        case DISCONNECT:    
+            write(sd, BYE, strlen(BYE)+1);
+            break;
+        default : 
+            write(sd, ERREUR, strlen(ERREUR)+1);
+            break;
+    }
+    return req;
 } 
 
 void deroute(int signal){
@@ -54,7 +56,7 @@ void deroute(int signal){
 }
 
 int main(int argc, char ** argv){
-    int se, sd,svcLen,ret,status,max_sd,activity;
+    int se, sd,svcLen,ret,status,max_sd,activity,retDial;
     int client_socket[NB_PLAYER];
     struct sockaddr_in svc, clt;
     socklen_t cltLen;
@@ -148,13 +150,13 @@ int main(int argc, char ** argv){
         for (int i = 0; i < NB_PLAYER; i++)   
         {   
             sd = client_socket[i];   
-                 
             if (FD_ISSET(sd,&rfds)){   
-
-                dialogueClt(&server,sd,clt);
+                retDial = dialogueClt(&server,sd,clt);
                 //Close the socket and mark as 0 in list for reuse  
-                shutdown(sd,2);
-                client_socket[i] = 0; 
+                if(retDial == DISCONNECT){
+                    shutdown(sd,2);
+                    client_socket[i] = 0; 
+                }
             }   
         }
 
