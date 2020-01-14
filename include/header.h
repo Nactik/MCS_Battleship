@@ -16,6 +16,7 @@
 #define MAX_BUFF 1024
 #define MAX_LENGTH_IP 15
 #define MAX_PLAYER_NAME 25
+#define MAX_NAME_LOBBY 25
 
 #define CONNECT_SRV     100
 #define CREATE_LOB      200
