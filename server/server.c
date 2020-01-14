@@ -49,7 +49,7 @@ int dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
 void deroute(int signal){
     int ret;
     switch(signal){
-        case SIGCHLD :
+        case SIGINT :
             wait(&ret);
             break;
     }
