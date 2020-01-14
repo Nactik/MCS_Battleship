@@ -25,16 +25,7 @@ void dialogueSrv (int sock, struct sockaddr_in srv) {
         switch (choix)
         {
             case 1: //Afficher les lobbys dispo
-                sprintf(msgToSend, "%d", PRINT_LOB); 
-                CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
-                do {
-                    
-                    CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
-                    sscanf (msgToRead, "%d:%s", &numReq, msgToRead);
-                    printf("%s\n", msgToRead); 
-                    sprintf(msgToSend, "%d", OK); 
-                    CHECK(write(sock,msgToSend,strlen(msgToSend)+1),"erreur write");
-                } while ( numReq != 106); //num a changer par variable
+                printLobby(sock);
             break; 
             case 2: //Créer un lobby
                 printf("Veuillez indiquer un nom de salle:"); 
