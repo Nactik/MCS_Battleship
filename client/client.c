@@ -78,6 +78,7 @@ int main(int argc, char ** argv){
     
     //Dialogue avec le serveur
     dialogueSrv(sock, svc, &sock_lobby);
+    shutdown(sock_lobby, 2);
     shutdown(sock,2);
     
     return 0;

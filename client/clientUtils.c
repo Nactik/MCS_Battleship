@@ -75,8 +75,5 @@ void createLobby(int sock_server, int * sock_lobby){
 
     // Mise en écoute de la socket
     CHECK(listen(*sock_lobby, 1) , "Can't calibrate");
-    puts("Mise en écoute socket écoute");
-    fflush(stdout); 
-    getchar(); 
-    shutdown(*sock_lobby, 2); 
+    puts("Mise en écoute socket écoute"); 
 }
