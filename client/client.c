@@ -1,8 +1,6 @@
 #include "clientUtils.h"
-int port; 
-char ipAddr[15]; 
 
-int dialogueSrv (int sock, struct sockaddr_in srv) {
+int dialogueSrv (int sock, struct sockaddr_in srv, int * sock_lobby) {
     
     int choix, numLobby,numReq; 
     char msgToSend[MAX_BUFF], msgToRead[MAX_BUFF]; 
@@ -28,10 +26,7 @@ int dialogueSrv (int sock, struct sockaddr_in srv) {
                 printLobby(sock);
             break; 
             case 2: //Créer un lobby
-                printf("Veuillez indiquer un nom de salle:"); 
-                scanf("%s", buffer); 
-                sprintf(msgToSend, "%d:%s:%s:%d", CREATE_LOB, buffer, ipAddr, port); 
-                CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
+                createLobby(sock, sock_lobby); 
                 break;
             case 3: //Jouer sur un lobby existant ou etre spectateur sur une partie en cours
             case 4: 
@@ -52,7 +47,7 @@ int dialogueSrv (int sock, struct sockaddr_in srv) {
 
 int main(int argc, char ** argv){
     
-    int sock, cltlen;
+    int sock, cltlen, sock_lobby;
     struct sockaddr_in svc;
     struct sockaddr_in clt;
 
@@ -80,11 +75,9 @@ int main(int argc, char ** argv){
     cltlen = sizeof(clt); 
     CHECK(getsockname(sock, (struct sockaddr *) &clt, &cltlen), "Can't get sockname"); 
     printf("Client -> [ %s ] utilise le port %d pour communiquer.\n\n", inet_ntoa(clt.sin_addr), ntohs(clt.sin_port)); 
-    strncpy(ipAddr, inet_ntoa(clt.sin_addr), 15); 
-    port= ntohs(clt.sin_port); 
     
     //Dialogue avec le serveur
-    dialogueSrv(sock, svc);
+    dialogueSrv(sock, svc, &sock_lobby);
     shutdown(sock,2);
     
     return 0;

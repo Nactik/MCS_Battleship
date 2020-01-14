@@ -47,3 +47,29 @@ void printLobby(int sock){
 
     puts("\t+------+--------------------+----------+");
 }
+
+void createLobby(int sock_server, int * sock_lobby){
+    
+    int sockLen; 
+    char buffer[MAX_BUFF], msgToSend[MAX_BUFF];
+    struct sockaddr_in svc_lobby;
+
+    printf("Veuillez indiquer un nom de salle: "); 
+    scanf("%s", buffer); 
+    CHECK(*sock_lobby=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
+    
+    //Préparation de l’adressage du service à contacte
+    svc_lobby.sin_family = AF_INET;
+    svc_lobby.sin_port = htons(atoi(0)); //Donne port aléa  
+    svc_lobby.sin_addr.s_addr = INADDR_ANY; 
+    memset(&svc_lobby.sin_zero, 0, 8);
+
+    //Mise en place du bind
+    CHECK(bind(*sock_lobby,(struct sockaddr *) &svc_lobby, sizeof svc_lobby), "Can't bind");
+
+    //Récupération des data socket côté client
+    sockLen = sizeof(svc_lobby); 
+    CHECK(getsockname(*sock_lobby, (struct sockaddr *) &svc_lobby, &sockLen), "Can't get sockname"); 
+    sprintf(msgToSend, "%d:%s:%d", CREATE_LOB, buffer,  ntohs(svc_lobby.sin_port)); 
+    CHECK(write(sock_lobby, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
+}
