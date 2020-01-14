@@ -6,19 +6,14 @@ void printLobby(int sd, Server server){
     char recv[MAX_BUFF];
     int reqCode;
     int code;
-    puts("coucou"); 
     for(i=0;i<server.nb;i++){
         sprintf(line,"%d:%d:%s:%d",105,server.tabLobby[i].numero,server.tabLobby[i].nom,server.tabLobby[i].nb_joueur);
-        printf("%s\n",line);
         // getchar();
         write(sd,line,strlen(line)+1);
         CHECK(read(sd,recv,sizeof(recv)),"erreur read");
     }
 
     sprintf(line,"%d:::",106);
-    puts("coucou2");
-    printf("%s\n",line);
-    // // getchar();
     write(sd,line,strlen(line)+1);
     CHECK(read(sd,recv,sizeof(recv)),"erreur read");
 }

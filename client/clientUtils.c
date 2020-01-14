@@ -27,23 +27,23 @@ void printLobby(int sock){
     sprintf(msgToSend, "%d", PRINT_LOB); 
     CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
 
-    puts("\t\t+------+--------------------+----------+");
-    printf("\t\t|%6s|%20s|%10s|\n","Numéro","Nom de la salle","Joueurs");
-    puts("\t\t+------+--------------------+----------+");
+    puts("\t+------+--------------------+----------+");
+    printf("\t|%6s|%20s|%10s|\n","Numéro","Nom de la salle","Joueurs");
+    puts("\t+------+--------------------+----------+");
     
     do {    
         CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
         sscanf (msgToRead, "%d:%d:%[^:]:%d", &numReq, &numLobby,lobbyName,&nbPlayer);
         if(numReq == 105){
             if(nbPlayer == 2){ //on ecrit en rouge si plein sinon en vert
-                printf("\t\t|%6d|%20s|\033[22;31m%8d/2\x1b[0m|\n",numLobby,lobbyName,nbPlayer);
-            } else {
-                printf("\t\t|%6d|%20s|\033[22;32m%8d/2\x1b[0m|\n",numLobby,lobbyName,nbPlayer);
+                printf("\t|%6d|%20s|\033[22;31m%8d/2\x1b[0m|\n",numLobby,lobbyName,nbPlayer);
+            } else {
+                printf("\t|%6d|%20s|\033[22;32m%8d/2\x1b[0m|\n",numLobby,lobbyName,nbPlayer);
             }
         }
         sprintf(msgToSend, "%d", OK); 
         CHECK(write(sock,msgToSend,strlen(msgToSend)+1),"erreur write");
     } while ( numReq != 106); 
 
-    puts("\t\t+------+--------------------+----------+");
+    puts("\t+------+--------------------+----------+");
 }

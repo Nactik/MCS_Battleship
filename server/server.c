@@ -60,7 +60,6 @@ int main(int argc, char ** argv){
     int client_socket[NB_PLAYER];
     struct sockaddr_in svc, clt;
     socklen_t cltLen;
-    pid_t pid;
     Server server;
     server.nb=0;
     fd_set rfds;   
@@ -98,17 +97,15 @@ int main(int argc, char ** argv){
 
     // Boucle permanente de service
     while (1) {
-
-        //clear the socket set  
+        //On clear le set de socket
         FD_ZERO(&rfds);   
      
-        //add master socket to set  
+        //On ajoute la socket d'écoute set  
         FD_SET(se, &rfds);   
         max_sd = se;   
              
-        //add child sockets to set  
-        for (int i = 0 ; i < NB_PLAYER ; i++)   {   
-            //socket descriptor  
+        //Pour chaque enfant, on l'ajoute au set
+        for (int i = 0 ; i < NB_PLAYER ; i++)   {  
             sd = client_socket[i];   
             if(sd > 0)   
                 FD_SET(sd,&rfds);   
@@ -118,65 +115,42 @@ int main(int argc, char ** argv){
 
         CHECK(activity = select( max_sd + 1 , &rfds , NULL , NULL , NULL),"Erreur");   
 
-        //If something happened on the master socket ,  
-        //then its an incoming connection  
+        //Si activité sur la master => c'est une connextion
         if (FD_ISSET(se, &rfds)) {   
             cltLen = sizeof(clt);
             CHECK(sd=accept(se,(struct sockaddr *) &clt, &cltLen),"Can't connect");
-
-            //inform user of socket number - used in send and receive commands  
+            //Information sur l'utilisateur entrant
             printf("New connection , socket fd is %d , ip is : %s , port : %d\n",
                     sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
            
-            //send new connection greeting message  
+            //On envoie bienvenu
             write(sd,WELCOME,strlen(WELCOME)+1);
-
-            puts("Welcome message sent successfully");   
+            puts("Bienvenue envoyé !");   
                  
-            //add new socket to array of sockets  
+            //On ajoute sa socket, à la liste de socket enfant
             for (int i = 0; i < NB_PLAYER; i++)   
             {   
-                //if position is empty  
+                //On check si y'a une place 
                 if(client_socket[i] == 0 )   
                 {   
                     client_socket[i] = sd;   
-                    printf("Adding to list of sockets as %d\n" , i);   
                     break;   
                 }   
             }   
         }
 
-        //else its some IO operation on some other socket 
+        //On check si y'a une activité sur un des clients
         for (int i = 0; i < NB_PLAYER; i++)   
         {   
             sd = client_socket[i];   
             if (FD_ISSET(sd,&rfds)){   
                 retDial = dialogueClt(&server,sd,clt);
-                //Close the socket and mark as 0 in list for reuse  
+                //shutdown  
                 if(retDial == DISCONNECT){
                     shutdown(sd,2);
                     client_socket[i] = 0; 
                 }
             }   
         }
-
-
-
-        /*Attente d’un appel
-        CHECK(sd=accept(se,(struct sockaddr *) &clt, &cltLen),"Can't connect");
-        puts("Attente socket écoute et création socket discussion");
-    
-        switch(pid = fork()){
-            case -1 : 
-                perror("erreur fork");
-                break;
-            case 0 :
-                // Dialogue avec le client
-                dialogueClt(&server,sd,clt);
-                shutdown(sd,2);
-                kill(SIGCHLD,getppid());
-                exit(0);
-                break;
-        };*/
     }
 }
