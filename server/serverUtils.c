@@ -1,53 +1,26 @@
 #include "serverUtils.h"
 
 void printLobby(int sd, Server server){
+    int i;
     char line[MAX_BUFF];
     char recv[MAX_BUFF];
     int reqCode;
-    puts("coucou");
-    sprintf(line,"%d:+------+--------------------+----------+",105);
-    printf("%s\n",line);
-    // getchar();
-    write(sd,line,strlen(line)+1);
-    CHECK(read(sd,recv,sizeof(recv)),"erreur read");
-
-    sprintf(line,"%d:|%6s|%20s|%10s|",105,"Numéro","Nom de la salle","Joueurs");
-    printf("%s\n",line);
-    // getchar();
-
-    write(sd,line,strlen(line)+1);
-    CHECK(read(sd,recv,sizeof(recv)),"erreur read");
-
-
-    sprintf(line,"%d:+------+--------------------+----------+",105);
-    printf("%s\n",line);
-    // getchar();
-
-    write(sd,line,strlen(line)+1);
-    CHECK(read(sd,recv,sizeof(recv)),"erreur read");
-
-    // getchar();
-
-    for(int i=0;i<server.nb;i++){
-        sprintf(line,"%d:|%7d|%20s|%8d/2|",105,server.tabLobby[i].numero,server.tabLobby[i].nom,server.tabLobby[i].nb_joueur);
+    int code;
+    puts("coucou"); 
+    for(i=0;i<server.nb;i++){
+        sprintf(line,"%d:%d:%s:%d",105,server.tabLobby[i].numero,server.tabLobby[i].nom,server.tabLobby[i].nb_joueur);
         printf("%s\n",line);
         // getchar();
         write(sd,line,strlen(line)+1);
         CHECK(read(sd,recv,sizeof(recv)),"erreur read");
     }
 
-    sprintf(line,"%d:+------+--------------------+----------+",105);
+    sprintf(line,"%d:::",106);
+    puts("coucou2");
     printf("%s\n",line);
-    // getchar();
+    // // getchar();
     write(sd,line,strlen(line)+1);
     CHECK(read(sd,recv,sizeof(recv)),"erreur read");
-
-    
-    sprintf(line,"%d:",106);
-    printf("%s\n",line);
-    // getchar();
-    write(sd,line,strlen(line)+1);
-    CHECK(read(sd,recv,sizeof(recv)),"106");
 }
 
 int connectToServer(char * buffer){
