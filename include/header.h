@@ -20,13 +20,14 @@
 
 #define DISCONNECT      0
 #define CONNECT_SRV     100
+#define CONNECT_SRV_OK  102
 #define CREATE_LOB      200
 #define CONNECT_LOB     300
-#define PRINT_LOB       150
-#define OK              151
-
-#define ATTACK          400
-#define CONNECT_SRV_OK  102
 #define CONNECT_LOB_OK  302
-#define RESULT_ATK      500
+#define PRINT_LOB       400
+#define HAS_LOBBY       401
+#define END_LOBBY       402
+
+#define ATTACK          500
+#define RESULT_ATK      600
 #define ERREUR          "KO:Une erreur est survenue ! Réesayer"

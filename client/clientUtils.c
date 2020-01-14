@@ -34,7 +34,7 @@ void printLobby(int sock){
     do {    
         CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
         sscanf (msgToRead, "%d:%d:%[^:]:%d", &numReq, &numLobby,lobbyName,&nbPlayer);
-        if(numReq == 105){
+        if(numReq == HAS_LOBBY){
             if(nbPlayer == 2){ //on ecrit en rouge si plein sinon en vert
                 printf("\t|%6d|%20s|\033[22;31m%8d/2\x1b[0m|\n",numLobby,lobbyName,nbPlayer);
             } else {
@@ -43,7 +43,7 @@ void printLobby(int sock){
         }
         sprintf(msgToSend, "%d", OK); 
         CHECK(write(sock,msgToSend,strlen(msgToSend)+1),"erreur write");
-    } while ( numReq != 106); 
+    } while ( numReq != END_LOBBY); 
 
     puts("\t+------+--------------------+----------+");
 }

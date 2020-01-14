@@ -7,13 +7,13 @@ void printLobby(int sd, Server server){
     int reqCode;
     int code;
     for(i=0;i<server.nb;i++){
-        sprintf(line,"%d:%d:%s:%d",105,server.tabLobby[i].numero,server.tabLobby[i].nom,server.tabLobby[i].nb_joueur);
+        sprintf(line,"%d:%d:%s:%d",HAS_LOBBY,server.tabLobby[i].numero,server.tabLobby[i].nom,server.tabLobby[i].nb_joueur);
         // getchar();
         write(sd,line,strlen(line)+1);
         CHECK(read(sd,recv,sizeof(recv)),"erreur read");
     }
 
-    sprintf(line,"%d:::",106);
+    sprintf(line,"%d:::",END_LOBBY);
     write(sd,line,strlen(line)+1);
     CHECK(read(sd,recv,sizeof(recv)),"erreur read");
 }

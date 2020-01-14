@@ -30,14 +30,14 @@ int dialogueSrv (int sock, struct sockaddr_in srv) {
             case 2: //Créer un lobby
                 printf("Veuillez indiquer un nom de salle:"); 
                 scanf("%s", buffer); 
-                sprintf(msgToSend, "%d:%s:%s:%d", 200, buffer, ipAddr, port); 
+                sprintf(msgToSend, "%d:%s:%s:%d", CREATE_LOB, buffer, ipAddr, port); 
                 CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
                 break;
             case 3: //Jouer sur un lobby existant ou etre spectateur sur une partie en cours
             case 4: 
                 printf("Veuillez indiquer le numéro de sur lequel jouer:"); 
                 scanf("%d", &numLobby);
-                sprintf(msgToSend, "%d:%d", 300, numLobby); 
+                sprintf(msgToSend, "%d:%d", CONNECT_LOB, numLobby); 
                 CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
                 break; 
             default:
