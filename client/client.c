@@ -29,11 +29,8 @@ int dialogueSrv (int sock, struct sockaddr_in srv, int * sock_lobby) {
                 createLobby(sock, sock_lobby); 
                 break;
             case 3: //Jouer sur un lobby existant ou etre spectateur sur une partie en cours
+                connectToLobby(sock);
             case 4: 
-                printf("Veuillez indiquer le numéro de sur lequel jouer:"); 
-                scanf("%d", &numLobby);
-                sprintf(msgToSend, "%d:%d", CONNECT_LOB, numLobby); 
-                CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
                 break; 
             default:
                 sprintf(msgToSend, "%d", DISCONNECT); 

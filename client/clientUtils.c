@@ -76,4 +76,49 @@ void createLobby(int sock_server, int * sock_lobby){
     // Mise en écoute de la socket
     CHECK(listen(*sock_lobby, 1) , "Can't calibrate");
     puts("Mise en écoute socket écoute"); 
+
+    waitPlayer(sock_lobby);
+}
+
+void waitPlayer(int * sock_lobby){
+    int se,sd;
+    struct sockaddr_in clt;
+    socklen_t cltLen;
+
+    puts("\t\t En attente de joueurs....");
+    CHECK(sd=accept(*sock_lobby,(struct sockaddr *) &clt, &cltLen),"Can't connect");
+    printf("New connection , socket fd is %d , ip is : %s , port : %d\n",
+                    sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
+
+
+}
+
+void connectToLobby(int sock ){
+    char msgToSend[MAX_BUFF], msgToRead[MAX_BUFF], ip[MAX_LENGTH_IP];
+    int port,req,numLobby;
+    struct sockaddr_in svc;
+
+    printf("Veuillez indiquer le numéro de sur lequel jouer:"); 
+    scanf("%d", &numLobby);
+    sprintf(msgToSend, "%d:%d", CONNECT_LOB, numLobby); 
+    CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
+    CHECK(read(sock,msgToRead,sizeof(msgToRead)),"Can't Read");
+
+    sscanf (msgToRead, "%d:%[^:]:%d",&req,ip,&port);
+    if(req ==CONNECT_LOB_OK){
+        printf("Création de la socket ...\n"); 
+        CHECK(sock=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
+        
+        //Préparation de l’adressage du service à contacte
+        svc.sin_family = AF_INET;
+        svc.sin_port = htons(port);  
+        svc.sin_addr.s_addr = inet_addr(ip); 
+        memset(&svc.sin_zero, 0, 8);
+        
+        //Demande d’une connexion au service
+        printf("Demande de connexion au serveur ...\n"); 
+        CHECK(connect(sock, (struct sockaddr *)&svc, sizeof svc) , "Can't connect");
+    
+    }
+
 }

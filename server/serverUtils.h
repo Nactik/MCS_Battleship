@@ -19,9 +19,11 @@ typedef struct Server {
     int nb;
 } Server;
 
+Server server;
+
 int addPlayer(char * pseudo);
 int connectToServer(char * buffer);
-int createLobby(int sd,Server * server,char * buffer);
-int connectToLobby(Server server,int sd, char * buffer);
-void printLobby(int sd, Server server);
-int addLobby(Server * server, char * lobbyName,char * ip, int port);
+int createLobby(int sd,char * buffer);
+int connectToLobby(int sd, char * buffer);
+void printLobby(int sd);
+int addLobby(char * lobbyName,char * ip, int port);

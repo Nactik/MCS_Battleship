@@ -17,21 +17,22 @@ int dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
                 sprintf(toSend,"%d,%s",CONNECT_SRV_OK,"Joueur connecté !");
                 write(sd,toSend,strlen(toSend)+1);
             } else {
-                write(sd,ERREUR,strlen(ERREUR)+1);
+                sprintf(toSend,"%d,%s",ERREUR,"Une erreur est survenu !");
+                write(sd,toSend, strlen(toSend)+1);
             }
             break;
             
         case CREATE_LOB : 
             puts("CREATION LOBBY");
-            createLobby(sd,server,content);
+            createLobby(sd,content);
             break;
         case CONNECT_LOB: 
-            connectToLobby(*server,sd,content);
+            connectToLobby(sd,content);
             break;
 
         case PRINT_LOB:
             puts("Affichage lobby");
-            printLobby(sd,*server);
+            printLobby(sd);
             puts("J'ai fini l'affichage");
 
             break;
@@ -39,20 +40,31 @@ int dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
             write(sd, BYE, strlen(BYE)+1);
             break;
         default : 
-            write(sd, ERREUR, strlen(ERREUR)+1);
+            sprintf(toSend,"%d,%s",ERREUR,"Une erreur est survenu !");
+            write(sd,toSend, strlen(toSend)+1);
             break;
     }
     return req;
 } 
+
+void deroute(int signal){
+    switch(signal){
+        case SIGINT:
+            free(server.tabLobby);
+            exit(-1);
+            break;
+    }
+}
 
 int main(int argc, char ** argv){
     int se, sd,svcLen,ret,status,max_sd,activity,retDial;
     int client_socket[NB_PLAYER];
     struct sockaddr_in svc, clt;
     socklen_t cltLen;
-    Server server;
-    server.nb=0;
     fd_set rfds;   
+    server.nb=0;;
+
+    signal(SIGINT,deroute);
 
     //initialise all client_socket[] to 0 so not checked  
     for (int i = 0; i < NB_PLAYER; i++)   

@@ -31,4 +31,4 @@
 
 #define ATTACK          500
 #define RESULT_ATK      600
-#define ERREUR          "KO:Une erreur est survenue ! Réesayer"
+#define ERREUR          -1
