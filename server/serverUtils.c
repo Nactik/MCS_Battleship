@@ -1,92 +1,93 @@
 #include "serverUtils.h"
 
-void printLobby(int sd){
-    int i;
+void printLobby(Sock sd){
+    int i,sock;
     char line[MAX_BUFF];
     char recv[MAX_BUFF];
     int reqCode;
     int code;
+    sock = sd.socket;
     for(i=0;i<server.nb;i++){
-        sprintf(line,"%d:%d:%s:%d",HAS_LOBBY,server.tabLobby[i].numero,server.tabLobby[i].nom,server.tabLobby[i].nb_joueur);
-        // getchar();
-        write(sd,line,strlen(line)+1);
-        CHECK(read(sd,recv,sizeof(recv)),"erreur read");
+        if(server.tabLobby[i].affected == 1){
+            sprintf(line,"%d:%d:%s:%s:%d",HAS_LOBBY,server.tabLobby[i].numero,server.tabLobby[i].nom,
+                    server.tabLobby[i].owner.pseudo,server.tabLobby[i].nb_joueur);
+            // getchar();
+            write(sock,line,strlen(line)+1);
+            CHECK(read(sock,recv,sizeof(recv)),"erreur read");
+        }
     }
 
     sprintf(line,"%d:::",END_LOBBY);
-    write(sd,line,strlen(line)+1);
-    CHECK(read(sd,recv,sizeof(recv)),"erreur read");
+    write(sock,line,strlen(line)+1);
+    CHECK(read(sock,recv,sizeof(recv)),"erreur read");
 }
 
-int connectToServer(char * buffer){
+int connectToServer(Sock * sd,char * buffer){
     char pseudo[MAX_PLAYER_NAME];
     sscanf (buffer, "%s",pseudo);
-    return addPlayer(pseudo);
+    strcpy(sd->client.pseudo,pseudo);
+    return 1;
 }
 
-int connectToLobby(int sd, char * buffer){
+int connectToLobby(Sock sd, char * buffer){
     int lobby;
     char line[MAX_BUFF];
     sscanf(buffer,"%d",&lobby);
 
     if(lobby < 0 || lobby >= server.nb){
         sprintf(line,"%d:Numéro de lobby invalide, veuillez réessayer",ERREUR);
-        write(sd,line,strlen(line)+1);
-    } else {
+        write(sd.socket,line,strlen(line)+1);
+    } else if(server.tabLobby[lobby].nb_joueur == 2){
+        /**Il faut spectate ici*/
+        sprintf(line,"%d:Salle plein,veuillez réessayer",ERREUR);
+        write(sd.socket,line,strlen(line)+1);
+    }else {
+        server.tabLobby[lobby].nb_joueur ++;
         char * ip = server.tabLobby[lobby].ip;
         int port = server.tabLobby[lobby].port;
         sprintf(line,"%d:%s:%d",CONNECT_LOB_OK,ip,port);
-        write(sd,line,strlen(line)+1);
+        write(sd.socket,line,strlen(line)+1);
     }
 
     return 1;
 }
 
 
-int createLobby(int sd, char * buffer){
+int createLobby(Sock sd, char * buffer){
     char lobbyName[MAX_NAME_LOBBY];
     char ip[MAX_LENGTH_IP];
     int port;
     struct sockaddr_in clt;
 
     int cltLen = sizeof(clt);
-    CHECK(getsockname(sd,(struct sockaddr *) &clt,&cltLen),"test");
+    CHECK(getsockname(sd.socket,(struct sockaddr *) &clt,&cltLen),"test");
     strcpy(ip,inet_ntoa(clt.sin_addr));
     
     printf("%s\n",buffer);
     sscanf (buffer, "%[^:]:%d",lobbyName,&port);
     printf("Lobby à créer : %s, %s, %d\n",lobbyName,ip,port);
-    return addLobby(lobbyName,ip,port);
+    printf("Owner : %s\n",sd.client.pseudo);
+
+    return addLobby(sd.client.pseudo,lobbyName,ip,port);
 }
 
-int addPlayer(char * pseudo){
-   /* int oldMemSize = sizeof(tabJoueur);
-
-    Joueur newPlayer;
-    strcpy(newPlayer.pseudo,pseudo);
-    int length  = sizeof(tabJoueur) / sizeof(Joueur);
-    tabJoueur = (Joueur *) realloc(tabJoueur, oldMemSize + sizeof(newPlayer));
-    tabJoueur[length] = newPlayer;*/
-
-    return 1;
-}  
-
-int addLobby(char * lobbyName,char * ip, int port){
+int addLobby(char * owner,char * lobbyName,char * ip, int port){
     puts("Ajout d'un lobby ...");
-
-    int oldMemSize = (server.tabLobby == NULL) ? 0 : sizeof(server.tabLobby); 
-    if(oldMemSize == 0)
-        server.nb = 0;
-
-    Lobby newLobby;
-    strcpy(newLobby.nom,lobbyName);
-    strcpy(newLobby.ip,ip);   
-    newLobby.port = port;
-    newLobby.nb_joueur = 1;
-
-    server.tabLobby = (Lobby *) realloc(server.tabLobby, oldMemSize + sizeof(newLobby));
-    newLobby.numero = server.nb;
-    server.tabLobby[server.nb++] = newLobby;
+    Lobby lobby;
+    for(int i=0;i<MAX_LOBBY;i++){
+        printf("%d\n",server.tabLobby[i].affected);
+        if(server.tabLobby[i].affected == 0){
+            //lobby = server.tabLobby[i];
+            strcpy(server.tabLobby[i].nom,lobbyName);
+            strcpy(server.tabLobby[i].ip,ip);   
+            server.tabLobby[i].port = port;
+            server.tabLobby[i].nb_joueur = 1;
+            server.tabLobby[i].affected = 1;
+            strcpy(server.tabLobby[i].owner.pseudo,owner);
+            server.nb++;
+            break;
+        }
+    }
     puts("... lobby créé");
     return 1;
 }  

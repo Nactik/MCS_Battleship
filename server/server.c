@@ -1,76 +1,76 @@
 #include "serverUtils.h"
 
-int dialogueClt (Server * server, int sd, struct sockaddr_in clt) {
+int dialogueClt (Server * server, Sock * sd, struct sockaddr_in clt) {
     char receive[MAX_BUFF];
     char requete[MAX_BUFF];
     char content[MAX_BUFF];
     int req;
     char toSend[MAX_BUFF];
 
-    CHECK(read(sd, receive, sizeof(receive)),"erreur read");
+    CHECK(read(sd->socket, receive, sizeof(receive)),"erreur read");
     sscanf (receive, "%d:%s",&req, content);
     printf("Req : %d\n", req);
     printf("Buffer : %s \n",content);
     switch (req) {
         case CONNECT_SRV : 
-            if(connectToServer(content) == 1){
-                sprintf(toSend,"%d,%s",CONNECT_SRV_OK,"Joueur connecté !");
-                write(sd,toSend,strlen(toSend)+1);
+            if(connectToServer(sd,content) == 1){
+                sprintf(toSend,"%d:%s%s",CONNECT_SRV_OK,"Bienvenu ",sd->client.pseudo);
+                write(sd->socket,toSend,strlen(toSend)+1);
             } else {
                 sprintf(toSend,"%d,%s",ERREUR,"Une erreur est survenu !");
-                write(sd,toSend, strlen(toSend)+1);
+                write(sd->socket,toSend, strlen(toSend)+1);
             }
             break;
             
         case CREATE_LOB : 
             puts("CREATION LOBBY");
-            createLobby(sd,content);
+            if(createLobby(*sd,content) == -1){
+                sprintf(toSend,"%d,%s",ERREUR,"Nombre de lobby max atteint !");
+                write(sd->socket,toSend, strlen(toSend)+1);
+            } else {
+                sprintf(toSend,"%d,%s",CREATE_LOB_OK,"Le lobby a bien été crée !");
+                write(sd->socket,toSend, strlen(toSend)+1);
+            }
             break;
         case CONNECT_LOB: 
-            connectToLobby(sd,content);
+            connectToLobby(*sd,content);
             break;
 
         case PRINT_LOB:
             puts("Affichage lobby");
-            printLobby(sd);
+            printLobby(*sd);
             puts("J'ai fini l'affichage");
 
             break;
         case DISCONNECT:    
-            write(sd, BYE, strlen(BYE)+1);
+            write(sd->socket, BYE, strlen(BYE)+1);
             break;
         default : 
             sprintf(toSend,"%d,%s",ERREUR,"Une erreur est survenu !");
-            write(sd,toSend, strlen(toSend)+1);
+            write(sd->socket,toSend, strlen(toSend)+1);
             break;
     }
     return req;
 } 
 
-void deroute(int signal){
-    switch(signal){
-        case SIGINT:
-            free(server.tabLobby);
-            exit(-1);
-            break;
-    }
-}
-
 int main(int argc, char ** argv){
     int se, sd,svcLen,ret,status,max_sd,activity,retDial;
-    int client_socket[NB_PLAYER];
     struct sockaddr_in svc, clt;
     socklen_t cltLen;
     fd_set rfds;   
-    server.nb=0;;
-
-    signal(SIGINT,deroute);
+    server.nb=0;
 
     //initialise all client_socket[] to 0 so not checked  
-    for (int i = 0; i < NB_PLAYER; i++)   
+    for (int i = 0; i < MAX_PLAYER; i++)   
     {   
-        client_socket[i] = 0;   
-    }   
+        client_socket[i].socket = 0;   
+    }  
+
+    //initialise all tabLobby[].affected to 0  
+    for (int i = 0; i < MAX_LOBBY; i++)   
+    {   
+        server.tabLobby[i].affected = 0;   
+    }    
 
     // Création de la socket de réception d’écoute des appels
     CHECK(se=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
@@ -92,7 +92,7 @@ int main(int argc, char ** argv){
     printf("address : %s\n",inet_ntoa(svc.sin_addr));
     
     // Mise en écoute de la socket
-    CHECK(listen(se, NB_PLAYER) , "Can't calibrate");
+    CHECK(listen(se, MAX_PLAYER) , "Can't calibrate");
     puts("Mise en écoute socket écoute");
 
     // Boucle permanente de service
@@ -105,8 +105,8 @@ int main(int argc, char ** argv){
         max_sd = se;   
              
         //Pour chaque enfant, on l'ajoute au set
-        for (int i = 0 ; i < NB_PLAYER ; i++)   {  
-            sd = client_socket[i];   
+        for (int i = 0 ; i < MAX_PLAYER ; i++)   {  
+            sd = client_socket[i].socket;   
             if(sd > 0)   
                 FD_SET(sd,&rfds);   
             if(sd > max_sd)   
@@ -128,27 +128,27 @@ int main(int argc, char ** argv){
             puts("Bienvenue envoyé !");   
                  
             //On ajoute sa socket, à la liste de socket enfant
-            for (int i = 0; i < NB_PLAYER; i++)   
+            for (int i = 0; i < MAX_PLAYER; i++)   
             {   
                 //On check si y'a une place 
-                if(client_socket[i] == 0 )   
+                if(client_socket[i].socket == 0 )   
                 {   
-                    client_socket[i] = sd;   
+                    client_socket[i].socket = sd;   
                     break;   
                 }   
             }   
         }
 
         //On check si y'a une activité sur un des clients
-        for (int i = 0; i < NB_PLAYER; i++)   
+        for (int i = 0; i < MAX_PLAYER; i++)   
         {   
-            sd = client_socket[i];   
+            sd = client_socket[i].socket;   
             if (FD_ISSET(sd,&rfds)){   
-                retDial = dialogueClt(&server,sd,clt);
+                retDial = dialogueClt(&server,&client_socket[i],clt);
                 //shutdown  
                 if(retDial == DISCONNECT){
                     shutdown(sd,2);
-                    client_socket[i] = 0; 
+                    client_socket[i].socket = 0; 
                 }
             }   
         }

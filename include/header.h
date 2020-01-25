@@ -12,7 +12,6 @@
 #define CHECK(sts,msg) if ((sts) == -1) {perror(msg);exit(-1);}
 #define NB_ELEM(tab) sizeof((tab))/sizeof((tab[0]))
 
-#define NB_PLAYER 20
 #define MAX_BUFF 1024
 #define MAX_LENGTH_IP 15
 #define MAX_PLAYER_NAME 25
@@ -22,6 +21,7 @@
 #define CONNECT_SRV     100
 #define CONNECT_SRV_OK  102
 #define CREATE_LOB      200
+#define CREATE_LOB_OK   202
 #define CONNECT_LOB     300
 #define CONNECT_LOB_OK  302
 #define PRINT_LOB       400

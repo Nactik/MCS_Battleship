@@ -4,7 +4,7 @@ int dialogueSrv (int sock, struct sockaddr_in srv, int * sock_lobby) {
     
     int choix, numLobby,numReq; 
     char msgToSend[MAX_BUFF], msgToRead[MAX_BUFF]; 
-    char pseudo[MAX_PLAYER_NAME], buffer[100]; 
+    char pseudo[MAX_PLAYER_NAME], buffer[MAX_BUFF]; 
 
     //Message de bienvenu
     CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
@@ -16,7 +16,8 @@ int dialogueSrv (int sock, struct sockaddr_in srv, int * sock_lobby) {
     sprintf(msgToSend, "%d:%s",CONNECT_SRV, pseudo); 
     CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
     CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
-    printf("%s\n",msgToRead);
+    sscanf(msgToRead,"%d:%[^:]",&numReq,buffer);
+    printf("%s\n",buffer);
 
     do{
         choix = displayMenu();

@@ -22,30 +22,31 @@ void printLobby(int sock){
     char msgToRead[MAX_BUFF];
     int numLobby;
     char lobbyName[MAX_NAME_LOBBY];
+    char owner[MAX_PLAYER_NAME];
     int nbPlayer;
 
     sprintf(msgToSend, "%d", PRINT_LOB); 
     CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
 
-    puts("\t+------+--------------------+----------+");
-    printf("\t|%6s|%20s|%10s|\n","Numéro","Nom de la salle","Joueurs");
-    puts("\t+------+--------------------+----------+");
+    puts("\t+------+-------------------------+-------------------------+----------+");
+    printf("\t|%6s|%25s|%25s|%10s|\n","Numéro","Nom de la salle","Hébergeur","Joueurs");
+    puts("\t+------+-------------------------+-------------------------+----------+");
     
     do {    
         CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
-        sscanf (msgToRead, "%d:%d:%[^:]:%d", &numReq, &numLobby,lobbyName,&nbPlayer);
+        sscanf (msgToRead, "%d:%d:%[^:]:%[^:]:%d", &numReq, &numLobby,lobbyName,owner,&nbPlayer);
         if(numReq == HAS_LOBBY){
             if(nbPlayer == 2){ //on ecrit en rouge si plein sinon en vert
-                printf("\t|%6d|%20s|\033[22;31m%8d/2\x1b[0m|\n",numLobby,lobbyName,nbPlayer);
+                printf("\t|%6d|%25s|%25s|\033[22;31m%8d/2\x1b[0m|\n",numLobby,lobbyName,owner,nbPlayer);
             } else {
-                printf("\t|%6d|%20s|\033[22;32m%8d/2\x1b[0m|\n",numLobby,lobbyName,nbPlayer);
+                printf("\t|%6d|%25s|%25s|\033[22;32m%8d/2\x1b[0m|\n",numLobby,lobbyName,owner,nbPlayer);
             }
         }
         sprintf(msgToSend, "%d", OK); 
         CHECK(write(sock,msgToSend,strlen(msgToSend)+1),"erreur write");
     } while ( numReq != END_LOBBY); 
 
-    puts("\t+------+--------------------+----------+\n");
+    puts("\t+------+-------------------------+-------------------------+----------+");
 }
 
 void createLobby(int sock_server, int * sock_lobby){
@@ -89,13 +90,13 @@ void waitPlayer(int * sock_lobby){
     CHECK(sd=accept(*sock_lobby,(struct sockaddr *) &clt, &cltLen),"Can't connect");
     printf("New connection , socket fd is %d , ip is : %s , port : %d\n",
                     sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
-
+    shutdown(sd,2);
 
 }
 
 void connectToLobby(int sock ){
     char msgToSend[MAX_BUFF], msgToRead[MAX_BUFF], ip[MAX_LENGTH_IP];
-    int port,req,numLobby;
+    int port,req,numLobby,sockLobby;
     struct sockaddr_in svc;
 
     printf("Veuillez indiquer le numéro de sur lequel jouer:"); 
@@ -107,7 +108,7 @@ void connectToLobby(int sock ){
     sscanf (msgToRead, "%d:%[^:]:%d",&req,ip,&port);
     if(req ==CONNECT_LOB_OK){
         printf("Création de la socket ...\n"); 
-        CHECK(sock=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
+        CHECK(sockLobby=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
         
         //Préparation de l’adressage du service à contacte
         svc.sin_family = AF_INET;
@@ -117,8 +118,8 @@ void connectToLobby(int sock ){
         
         //Demande d’une connexion au service
         printf("Demande de connexion au serveur ...\n"); 
-        CHECK(connect(sock, (struct sockaddr *)&svc, sizeof svc) , "Can't connect");
-    
+        CHECK(connect(sockLobby, (struct sockaddr *)&svc, sizeof svc) , "Can't connect");
     }
+    shutdown(sockLobby,2);
 
 }
