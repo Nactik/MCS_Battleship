@@ -10,6 +10,8 @@
 #include <sys/select.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 
 #define CHECK(sts,msg) if ((sts) == -1) {perror(msg);exit(-1);}

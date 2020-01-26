@@ -77,12 +77,17 @@ void createLobby(int sock_server, int * sock_lobby){
     // Mise en écoute de la socket
     CHECK(listen(*sock_lobby, 1) , "Can't calibrate");
     puts("Mise en écoute socket écoute"); 
-
+    mutex = sem_open("/mutex",O_CREAT,666,1);
+    sem_wait(mutex);
     pthread_t monThread = pthread_create(&monThread,NULL,waitPlayer,(void *) sock_lobby);
     pthread_join(monThread,ret);
+    sem_wait(mutex);
+    CHECK(sem_close(mutex),"Erreur destruction mutex"); //On detruit la mutex
+    CHECK(sem_unlink("/mutex"),"Erreur unlink mutex"); //On detruit la mutex
 }
 
 void * waitPlayer(void * arg){
+
     int sd;
     int * sock_lobby = (int *) arg;
     struct sockaddr_in clt;
@@ -94,6 +99,7 @@ void * waitPlayer(void * arg){
                     sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
     startGame(sd,1);
     shutdown(*sock_lobby,2);
+    sem_post(mutex);
     pthread_exit(0);
 }
 
