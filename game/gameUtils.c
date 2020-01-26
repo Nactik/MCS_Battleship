@@ -63,7 +63,8 @@ void placeShip(){
 }
 
 int hitShip(int line, int column)
-{
+{   
+    printf("Case : %d\n",myBoard[line-1][column-1]);
     if(myBoard[line-1][column-1] == SHIP){
         return 1;
     }
@@ -74,12 +75,14 @@ void waitAttack(int socket){
     char msgToSend[MAX_BUFF],buffer[MAX_BUFF],content[MAX_BUFF];
     int numReq,line,column;
     CHECK(read(socket,buffer,sizeof(buffer)),"Can't read");
-    sscanf(buffer,"%d:%d%d",&numReq,&line,&column);
+    printf("Je reçois : %s\n",buffer);
+    sscanf(buffer,"%d:%d:%d",&numReq,&line,&column);
     if(hitShip(line,column) == 1){
         sprintf(msgToSend,"%d:%c",RESULT_ATK,'T');
     } else{
         sprintf(msgToSend,"%d:%c",RESULT_ATK,'M');
     }
+    printf("J'envoie : %s\n",msgToSend);
     CHECK(write(socket,msgToSend,strlen(msgToSend)+1),"Can't write");
 }
 
@@ -114,7 +117,7 @@ void attack(int socket,int * nbShipTouched){
             flag = 1;
         } 
     }
-    sprintf(buffer,"%d:%d%d",ATTACK,line,column);
+    sprintf(buffer,"%d:%d:%d",ATTACK,line,column);
     CHECK(write(socket,buffer,strlen(buffer)+1),"Can't write");
     //On attend la réponse de l'autre client
     CHECK(read(socket,buffer,sizeof(buffer)),"Can't read");
