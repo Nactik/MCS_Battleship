@@ -73,7 +73,6 @@ int hitShip(int line, int column)
 void waitAttack(int socket){
     char msgToSend[MAX_BUFF],buffer[MAX_BUFF],content[MAX_BUFF];
     int numReq,line,column;
-    //Si joueur 2, on joue en 2é donc on read d'abord
     CHECK(read(socket,buffer,sizeof(buffer)),"Can't read");
     sscanf(buffer,"%d:%d%d",&numReq,&line,&column);
     if(hitShip(line,column) == 1){

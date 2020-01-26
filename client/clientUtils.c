@@ -80,7 +80,6 @@ void createLobby(int sock_server, int * sock_lobby){
 
     pthread_t monThread = pthread_create(&monThread,NULL,waitPlayer,(void *) sock_lobby);
     pthread_join(monThread,ret);
-    waitPlayer(sock_lobby);
 }
 
 void * waitPlayer(void * arg){
