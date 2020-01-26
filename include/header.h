@@ -9,6 +9,7 @@
 #include <signal.h>
 #include <sys/select.h>
 #include <semaphore.h>
+#include <pthread.h>
 
 
 #define CHECK(sts,msg) if ((sts) == -1) {perror(msg);exit(-1);}

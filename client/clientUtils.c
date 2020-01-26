@@ -50,8 +50,8 @@ void printLobby(int sock){
 }
 
 void createLobby(int sock_server, int * sock_lobby){
-    
     int sockLen; 
+    int ** ret;
     char buffer[MAX_BUFF], msgToSend[MAX_BUFF];
     struct sockaddr_in svc_lobby;
 
@@ -78,11 +78,14 @@ void createLobby(int sock_server, int * sock_lobby){
     CHECK(listen(*sock_lobby, 1) , "Can't calibrate");
     puts("Mise en écoute socket écoute"); 
 
+    pthread_t monThread = pthread_create(&monThread,NULL,waitPlayer,(void *) sock_lobby);
+    pthread_join(monThread,ret);
     waitPlayer(sock_lobby);
 }
 
-void waitPlayer(int * sock_lobby){
+void * waitPlayer(void * arg){
     int sd;
+    int * sock_lobby = (int *) arg;
     struct sockaddr_in clt;
     socklen_t cltLen;
 
@@ -92,6 +95,7 @@ void waitPlayer(int * sock_lobby){
                     sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
     startGame(sd,1);
     shutdown(*sock_lobby,2);
+    pthread_exit(0);
 }
 
 void connectToLobby(int sock ){
