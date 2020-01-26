@@ -8,6 +8,8 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <sys/select.h>
+#include <semaphore.h>
+
 
 #define CHECK(sts,msg) if ((sts) == -1) {perror(msg);exit(-1);}
 #define NB_ELEM(tab) sizeof((tab))/sizeof((tab[0]))
@@ -31,4 +33,5 @@
 
 #define ATTACK          500
 #define RESULT_ATK      600
+#define END_PLACING     700
 #define ERREUR          -1

@@ -1,7 +1,7 @@
 all: client
 
 client : client.c clientUtils.o
-	gcc client.c clientUtils.o -o client
+	gcc client.c clientUtils.o ../game/gameUtils.o -o client
 	mv client ../bin/client
 
 clientUtils.o : clientUtils.c 

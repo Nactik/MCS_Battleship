@@ -1,4 +1,5 @@
 #include "../include/header.h"
+#include "../game/gameUtils.h"
 
 int displayMenu(); 
 void printLobby(int sock);

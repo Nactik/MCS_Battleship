@@ -67,7 +67,7 @@ int main(int argc, char ** argv){
     //Demande d’une connexion au service
     printf("Demande de connexion au serveur ...\n"); 
     CHECK(connect(sock, (struct sockaddr *)&svc, sizeof svc) , "Can't connect");
-
+    
     
     //Récupération des data socket côté client
     cltlen = sizeof(clt); 

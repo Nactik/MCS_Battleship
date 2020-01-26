@@ -82,7 +82,7 @@ void createLobby(int sock_server, int * sock_lobby){
 }
 
 void waitPlayer(int * sock_lobby){
-    int se,sd;
+    int sd;
     struct sockaddr_in clt;
     socklen_t cltLen;
 
@@ -90,8 +90,8 @@ void waitPlayer(int * sock_lobby){
     CHECK(sd=accept(*sock_lobby,(struct sockaddr *) &clt, &cltLen),"Can't connect");
     printf("New connection , socket fd is %d , ip is : %s , port : %d\n",
                     sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
-    shutdown(sd,2);
-
+    startGame(sd,1);
+    shutdown(*sock_lobby,2);
 }
 
 void connectToLobby(int sock ){
@@ -120,6 +120,7 @@ void connectToLobby(int sock ){
         printf("Demande de connexion au serveur ...\n"); 
         CHECK(connect(sockLobby, (struct sockaddr *)&svc, sizeof svc) , "Can't connect");
     }
+    
+    startGame(sockLobby,2);
     shutdown(sockLobby,2);
-
 }
