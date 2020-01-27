@@ -134,7 +134,7 @@ void startGame(int socket,int player) {
     //On place le pion
     placeShip();
 
-    puts("J'ai fini de placé mes bateaux");
+    puts("J'ai fini de placer mes bateaux");
     //Synchro, on prévient l'autre qu'on a fini et on l'attent
     sprintf(msgToSend,"%d",END_PLACING);
     CHECK(write(socket,msgToSend,strlen(msgToSend)+1),"Can't write");
@@ -142,19 +142,22 @@ void startGame(int socket,int player) {
     
     puts("");
 
+    nbShipTouched = 0; 
+
     while(nbShipTouched != MAX_SHIP){
         if(player == 2){
             waitAttack(socket);
         }
 
         showBoard(oponentBoard);
-        attack(socket,&nbShipTouched);
+        attack(socket,&nbShipTouched); 
 
         if(player ==1){
             waitAttack(socket);
         }
     }
 
-    printf("\n\n\nFinished game. You hit the three ships in %d attempts", 3);
+    puts("Bien joué, vous avez coulé la flotte adverse !");
     showBoard(oponentBoard);
+    puts("Retour au serveur de jeu");
 }

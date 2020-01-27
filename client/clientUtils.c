@@ -51,7 +51,7 @@ void printLobby(int sock){
 
 void createLobby(int sock_server, int * sock_lobby){
     int sockLen; 
-    int ** ret;
+    void * ret;
     char buffer[MAX_BUFF], msgToSend[MAX_BUFF];
     struct sockaddr_in svc_lobby;
 
@@ -80,10 +80,10 @@ void createLobby(int sock_server, int * sock_lobby){
     mutex = sem_open("/mutex",O_CREAT,666,1);
     sem_wait(mutex);
     pthread_t monThread = pthread_create(&monThread,NULL,waitPlayer,(void *) sock_lobby);
-    pthread_join(monThread,ret);
+    pthread_join(monThread,&ret);
     sem_wait(mutex);
     CHECK(sem_close(mutex),"Erreur destruction mutex"); //On detruit la mutex
-    CHECK(sem_unlink("/mutex"),"Erreur unlink mutex"); //On detruit la mutex
+    CHECK(sem_unlink("/mutex"),"Erreur unlink mutex"); //On unlink la mutex
 }
 
 void * waitPlayer(void * arg){

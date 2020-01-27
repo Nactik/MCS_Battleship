@@ -1,7 +1,7 @@
 #include "../include/header.h"
 #define MAX_COLUMN  5
 #define MAX_LINE    5
-#define MAX_SHIP    5
+#define MAX_SHIP    2
 #define WATER       0
 #define SHIP        1
 #define MISSED      2
