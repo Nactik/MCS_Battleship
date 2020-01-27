@@ -150,13 +150,8 @@ void startGame(int socket,int player) {
             waitAttack(socket);
         }
 
-<<<<<<< HEAD
-        showBoard(oponentBoard);
-        attack(socket,&nbShipTouched); 
-=======
         //showBoard(oponentBoard);
         attack(socket,&nbShipTouched);
->>>>>>> 644abcb4acd1fe292bdf44b41b1d39069d88d9c2
 
         if(player ==1){
             waitAttack(socket);
