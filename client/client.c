@@ -1,5 +1,18 @@
 #include "clientUtils.h"
 
+void deroute(int sig){
+    switch (sig)
+    {
+    case SIGINT:
+        CHECK(sem_close(mutex),"Erreur destruction mutex"); //On detruit la mutex
+        CHECK(sem_unlink("/mutex"),"Erreur unlink mutex"); //On detruit la mutex
+        exit(-1);
+        break;
+    
+    default:
+        break;
+    }
+}
 int dialogueSrv (int sock, struct sockaddr_in srv, int * sock_lobby) {
     
     int choix, numLobby,numReq; 
@@ -49,6 +62,7 @@ int main(int argc, char ** argv){
     struct sockaddr_in svc;
     struct sockaddr_in clt;
 
+    signal(SIGINT,deroute);
     if(argc != 3){
         printf("Erreur, rentrez les bons arguments\n"); 
         return 0; 

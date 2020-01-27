@@ -14,7 +14,9 @@ void showBoard(int board[MAX_LINE][MAX_COLUMN])
 
     int line, column;
 
-        printf("\t1 \t2 \t3 \t4 \t5");
+        for(int i=0;i<MAX_LINE;i++){
+            printf("\t%d ",(i+1));
+        }
         printf("\n");
 
         for(line=0 ; line < MAX_LINE ; line++ ){
@@ -27,7 +29,6 @@ void showBoard(int board[MAX_LINE][MAX_COLUMN])
                 }else if(board[line][column]==MISSED){
                     printf("\t\033[22;31mX\x1b[0m");
                 }
-
             }
             printf("\n");
         }
@@ -149,8 +150,13 @@ void startGame(int socket,int player) {
             waitAttack(socket);
         }
 
+<<<<<<< HEAD
         showBoard(oponentBoard);
         attack(socket,&nbShipTouched); 
+=======
+        //showBoard(oponentBoard);
+        attack(socket,&nbShipTouched);
+>>>>>>> 644abcb4acd1fe292bdf44b41b1d39069d88d9c2
 
         if(player ==1){
             waitAttack(socket);
