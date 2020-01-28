@@ -61,6 +61,7 @@ void placeShip(){
             nbShiftPlaced++;
         }
     }
+    showBoard(myBoard);
 }
 
 int hitShip(int line, int column)
