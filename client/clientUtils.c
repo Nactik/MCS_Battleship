@@ -119,6 +119,7 @@ void connectToLobby(int sock ){
     sscanf (msgToRead, "%d:%[^:]",&req,content);
     if(req ==CONNECT_LOB_OK){
         sscanf (content, "%[^:]:%d",ip,&port);
+        printf("--> %s", content); 
 
         printf("Création de la socket ...\n"); 
         CHECK(sockLobby=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
@@ -130,7 +131,7 @@ void connectToLobby(int sock ){
         memset(&svc.sin_zero, 0, 8);
         
         //Demande d’une connexion au service
-        printf("Demande de connexion au serveur ...\n"); 
+        printf("Demande de connexion au serveur [%s] - [%d]...\n", ip, port); 
         CHECK(connect(sockLobby, (struct sockaddr *)&svc, sizeof svc) , "Can't connect");
 
         startGame(sockLobby,2);

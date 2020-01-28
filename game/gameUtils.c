@@ -77,7 +77,7 @@ int hitShip(int line, int column)
     return 0;
 }
 
-int waitAttack(int socket){
+void waitAttack(int socket, int * myShipTouched){
     char msgToSend[MAX_BUFF],buffer[MAX_BUFF],content[MAX_BUFF];
     int numReq,line,column;
     CHECK(read(socket,buffer,sizeof(buffer)),"Can't read");
@@ -86,16 +86,13 @@ int waitAttack(int socket){
     if(numReq == ATTACK){
         if(hitShip(line,column) == 1){
             sprintf(msgToSend,"%d:%c",RESULT_ATK,'T');
+            *(myShipTouched) += 1; //Un de mes bateaux a été touché
         } else{
             sprintf(msgToSend,"%d:%c",RESULT_ATK,'M');
         }
         printf("J'envoie : %s\n",msgToSend);
         CHECK(write(socket,msgToSend,strlen(msgToSend)+1),"Can't write");
-        return 0;
-    } else if(numReq == END_GAME){ //Si jamais on a perdu
-        return 1;
-    }
-    return 0;
+    } 
 }
 
 void updateBoard(char result, int line, int column,int * nbShipTouched){
@@ -139,7 +136,7 @@ void attack(int socket,int * nbShipTouched){
 
 void startGame(int socket,int player) {
     char msgToSend[MAX_BUFF],buffer[MAX_BUFF];
-    int nbShipTouched,numReq;
+    int nbShipTouched,myShipTouched,numReq;
     int lost = 0;
 
     //on init les plateau
@@ -155,26 +152,32 @@ void startGame(int socket,int player) {
     
     puts("");
 
-    nbShipTouched = 0; 
+    nbShipTouched = 0; //bateaux adverse
+    myShipTouched = 0; //Mes bateaux
 
-    while(nbShipTouched != MAX_SHIP && lost != 1){
+    while(1){
         if(player == 2){
-            lost = waitAttack(socket);
+            waitAttack(socket, &myShipTouched);
+            if(myShipTouched == MAX_SHIP){ //On sort 
+                puts("Ok j'ai perdu"); 
+                break; 
+            }
         }
+
         //showBoard(oponentBoard);
         attack(socket,&nbShipTouched);
+        if(nbShipTouched == MAX_SHIP){ //On sort 
+            puts("Ok, j'ai gagné"); 
+            break; 
+        }
 
         if(player ==1){
-            lost = waitAttack(socket);
+            waitAttack(socket, &myShipTouched);
+            if(myShipTouched == MAX_SHIP){ //On sort 
+                puts("Ok j'ai perdu"); 
+                break; 
+            }
         }
-    }
-
-    if(lost==0){
-        sprintf(msgToSend,"%d::",END_GAME);
-        CHECK(write(socket,msgToSend,strlen(msgToSend)+1),"Can't write");
-        puts("Bien joué, vous avez coulé la flotte adverse !");
-    }else {
-        puts("Dommage, vous avez perdu la partie !");
     }
 
     puts("Retour au serveur de jeu");
