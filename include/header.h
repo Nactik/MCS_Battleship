@@ -13,13 +13,34 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-
+/**
+ * \brief Macro-fonction permettant de verifier les appels système
+ */
 #define CHECK(sts,msg) if ((sts) == -1) {perror(msg);exit(-1);}
+/**
+ * \brief Macro-fonction permettant d'obtenir le nombre d'elements dans un tableau
+ * 
+ */
 #define NB_ELEM(tab) sizeof((tab))/sizeof((tab[0]))
 
+/**
+ * \brief Taille de buffer maximale
+ */
 #define MAX_BUFF 1024
-#define MAX_LENGTH_IP 15
+
+/**
+ * \brief Taille maximale d'une addresse IPV4 (XXX.XXX.XXX.XXX)
+ */
+#define MAX_LENGTH_IP 16
+
+/**
+ * \brief Taille maximale des pseudos des joueurs
+ */
 #define MAX_PLAYER_NAME 25
+
+/**
+ * \brief Taille des noms de lobby
+ */
 #define MAX_NAME_LOBBY 25
 
 #define DISCONNECT      0

@@ -22,14 +22,13 @@ void printLobby(Sock sd){
     CHECK(read(sock,recv,sizeof(recv)),"erreur read");
 }
 
-int connectToServer(Sock * sd,char * buffer){
+void connectToServer(Sock * sd,char * buffer){
     char pseudo[MAX_PLAYER_NAME];
     sscanf (buffer, "%s",pseudo);
     strcpy(sd->client.pseudo,pseudo);
-    return 1;
 }
 
-int connectToLobby(Sock sd, char * buffer){
+void connectToLobby(Sock sd, char * buffer){
     int lobby;
     char line[MAX_BUFF];
     sscanf(buffer,"%d",&lobby);
@@ -48,8 +47,6 @@ int connectToLobby(Sock sd, char * buffer){
         }
         write(sd.socket,line,strlen(line)+1);
     }
-
-    return 1;
 }
 
 int createLobby(Sock sd, char * buffer){
