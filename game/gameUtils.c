@@ -70,7 +70,7 @@ void placeShip(){
 
 int hitShip(int line, int column)
 {   
-    printf("Case : %d\n",myBoard[line-1][column-1]);
+   // printf("Case : %d\n",myBoard[line-1][column-1]);
     if(myBoard[line-1][column-1] == SHIP){
         return 1;
     }
@@ -81,7 +81,7 @@ void waitAttack(int socket, int * myShipTouched){
     char msgToSend[MAX_BUFF],buffer[MAX_BUFF],content[MAX_BUFF];
     int numReq,line,column;
     CHECK(read(socket,buffer,sizeof(buffer)),"Can't read");
-    printf("Je reçois : %s\n",buffer);
+    //printf("Je reçois : %s\n",buffer);
     sscanf(buffer,"%d:%d:%d",&numReq,&line,&column);
     if(numReq == ATTACK){
         if(hitShip(line,column) == 1){
@@ -90,18 +90,18 @@ void waitAttack(int socket, int * myShipTouched){
         } else{
             sprintf(msgToSend,"%d:%c",RESULT_ATK,'M');
         }
-        printf("J'envoie : %s\n",msgToSend);
+        //printf("J'envoie : %s\n",msgToSend);
         CHECK(write(socket,msgToSend,strlen(msgToSend)+1),"Can't write");
     } 
 }
 
 void updateBoard(char result, int line, int column,int * nbShipTouched){
     if(result == 'T'){
-        puts("\t Bravo, vous avez touché un bateau !!");
+        puts("\tBravo, vous avez touché un bateau !!");
         oponentBoard[line-1][column-1] = SHIP;
         *(nbShipTouched) += 1;
     } else if(result == 'M'){
-        puts("\t Dommage, vous n'avez rien touché !!");
+        puts("\tDommage, vous n'avez rien touché !!");
         oponentBoard[line-1][column-1] = MISSED;
     }
     showBoard(oponentBoard);
@@ -144,7 +144,7 @@ void startGame(int socket,int player) {
     //On place le pion
     placeShip();
 
-    puts("J'ai fini de placer mes bateaux");
+    puts("Placement des bateaux terminés !");
     //Synchro, on prévient l'autre qu'on a fini et on l'attent
     sprintf(msgToSend,"%d",END_PLACING);
     CHECK(write(socket,msgToSend,strlen(msgToSend)+1),"Can't write");
@@ -157,9 +157,10 @@ void startGame(int socket,int player) {
 
     while(1){
         if(player == 2){
+            puts("Au tour de l'adversaire !"); 
             waitAttack(socket, &myShipTouched);
             if(myShipTouched == MAX_SHIP){ //On sort 
-                puts("Ok j'ai perdu"); 
+                puts("Perdu !!"); 
                 break; 
             }
         }
@@ -167,14 +168,15 @@ void startGame(int socket,int player) {
         //showBoard(oponentBoard);
         attack(socket,&nbShipTouched);
         if(nbShipTouched == MAX_SHIP){ //On sort 
-            puts("Ok, j'ai gagné"); 
+            puts("Gagné !!"); 
             break; 
         }
 
         if(player ==1){
+            puts("Au tour de l'adversaire !");
             waitAttack(socket, &myShipTouched);
             if(myShipTouched == MAX_SHIP){ //On sort 
-                puts("Ok j'ai perdu"); 
+                puts("Perdu !!"); 
                 break; 
             }
         }

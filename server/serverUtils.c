@@ -63,19 +63,19 @@ int createLobby(Sock sd, char * buffer){
     CHECK(getsockname(sd.socket,(struct sockaddr *) &clt,&cltLen),"test");
     strcpy(ip,inet_ntoa(clt.sin_addr));
     
-    printf("%s\n",buffer);
+    //printf("%s\n",buffer);
     sscanf (buffer, "%[^:]:%d",lobbyName,&port);
-    printf("Lobby à créer : %s, %s, %d\n",lobbyName,ip,port);
-    printf("Owner : %s\n",sd.client.pseudo);
+    //printf("Lobby à créer : %s, %s, %d\n",lobbyName,ip,port);
+    //printf("Owner : %s\n",sd.client.pseudo);
 
     return addLobby(sd.client.pseudo,lobbyName,ip,port);
 }
 
 int addLobby(char * owner,char * lobbyName,char * ip, int port){
-    puts("Ajout d'un lobby ...");
+    //puts("Ajout d'un lobby ...");
     Lobby lobby;
     for(int i=0;i<MAX_LOBBY;i++){
-        printf("%d\n",server.tabLobby[i].affected);
+        //printf("%d\n",server.tabLobby[i].affected);
         if(server.tabLobby[i].affected == 0){
             //lobby = server.tabLobby[i];
             strcpy(server.tabLobby[i].nom,lobbyName);
@@ -88,6 +88,6 @@ int addLobby(char * owner,char * lobbyName,char * ip, int port){
             break;
         }
     }
-    puts("... lobby créé");
+    //puts("... lobby créé");
     return 1;
 }  

@@ -44,7 +44,9 @@ int dialogueSrv (int sock, struct sockaddr_in srv, int * sock_lobby) {
                 break;
             case 3: //Jouer sur un lobby existant ou etre spectateur sur une partie en cours
                 connectToLobby(sock);
+                break; 
             case 4: 
+                puts("Fonctionnaité indisponible pour le moment");
                 break; 
             default:
                 sprintf(msgToSend, "%d", DISCONNECT); 
@@ -69,7 +71,7 @@ int main(int argc, char ** argv){
     }
     
     //Création de la socket d’appel et de dialogue
-    printf("Création de la socket ...\n"); 
+    //printf("Création de la socket ...\n"); 
     CHECK(sock=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
     
     //Préparation de l’adressage du service à contacte
@@ -79,14 +81,14 @@ int main(int argc, char ** argv){
     memset(&svc.sin_zero, 0, 8);
     
     //Demande d’une connexion au service
-    printf("Demande de connexion au serveur ...\n"); 
+    //printf("Demande de connexion au serveur ...\n"); 
     CHECK(connect(sock, (struct sockaddr *)&svc, sizeof svc) , "Can't connect");
     
     
     //Récupération des data socket côté client
     cltlen = sizeof(clt); 
     CHECK(getsockname(sock, (struct sockaddr *) &clt, &cltlen), "Can't get sockname"); 
-    printf("Client -> [ %s ] utilise le port %d pour communiquer.\n\n", inet_ntoa(clt.sin_addr), ntohs(clt.sin_port)); 
+    //printf("Client -> [ %s ] utilise le port %d pour communiquer.\n\n", inet_ntoa(clt.sin_addr), ntohs(clt.sin_port)); 
     
     //Dialogue avec le serveur
     dialogueSrv(sock, svc, &sock_lobby);

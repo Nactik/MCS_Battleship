@@ -95,10 +95,11 @@ void * waitPlayer(void * arg){
     struct sockaddr_in clt;
     socklen_t cltLen;
 
-    puts("\t\t En attente de joueurs....");
+    puts("\t\t-> En attente de joueurs....");
     CHECK(sd=accept(*sock_lobby,(struct sockaddr *) &clt, &cltLen),"Can't connect");
-    printf("New connection , socket fd is %d , ip is : %s , port : %d\n",
-                    sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
+    puts("\t\t -> Adversaire trouvé !"); 
+    //socket fd is %d , ip is : %s , port : %d\n", sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
+    
     startGame(sd,1);
     shutdown(*sock_lobby,2);
     sem_post(mutex);
@@ -119,9 +120,9 @@ void connectToLobby(int sock ){
     sscanf(msgToRead, "%d:%s",&req,content);
     if(req==CONNECT_LOB_OK){
         sscanf(content, "%[^:]:%d",ip,&port);
-        printf("--> %s", content); 
+        //printf("--> %s", content); 
 
-        printf("Création de la socket ...\n"); 
+        //printf("Création de la socket ...\n"); 
         CHECK(sockLobby=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
         
         //Préparation de l’adressage du service à contacte

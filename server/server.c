@@ -9,12 +9,12 @@ int dialogueClt (Server * server, Sock * sd, struct sockaddr_in clt) {
 
     CHECK(read(sd->socket, receive, sizeof(receive)),"erreur read");
     sscanf (receive, "%d:%s",&req, content);
-    printf("Req : %d\n", req);
-    printf("Buffer : %s \n",content);
+    //printf("Req : %d\n", req);
+    //printf("Buffer : %s \n",content);
     switch (req) {
         case CONNECT_SRV : 
             if(connectToServer(sd,content) == 1){
-                sprintf(toSend,"%d:%s%s",CONNECT_SRV_OK,"Bienvenu ",sd->client.pseudo);
+                sprintf(toSend,"%d:%s%s",CONNECT_SRV_OK,"Bienvenue ",sd->client.pseudo);
                 write(sd->socket,toSend,strlen(toSend)+1);
             } else {
                 sprintf(toSend,"%d,%s",ERREUR,"Une erreur est survenu !");
@@ -23,7 +23,7 @@ int dialogueClt (Server * server, Sock * sd, struct sockaddr_in clt) {
             break;
             
         case CREATE_LOB : 
-            puts("CREATION LOBBY");
+            //puts("CREATION LOBBY");
             if(createLobby(*sd,content) == -1){
                 sprintf(toSend,"%d,%s",ERREUR,"Nombre de lobby max atteint !");
                 write(sd->socket,toSend, strlen(toSend)+1);
@@ -37,9 +37,9 @@ int dialogueClt (Server * server, Sock * sd, struct sockaddr_in clt) {
             break;
 
         case PRINT_LOB:
-            puts("Affichage lobby");
+            //puts("Affichage lobby");
             printLobby(*sd);
-            puts("J'ai fini l'affichage");
+            //puts("J'ai fini l'affichage");
 
             break;
         case DISCONNECT:    
@@ -74,7 +74,7 @@ int main(int argc, char ** argv){
 
     // Création de la socket de réception d’écoute des appels
     CHECK(se=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
-    puts("Création socket écoute");
+    //puts("Création socket écoute");
 
     // Préparation de l’adressage du service (d’appel)
     svc.sin_family = AF_INET;
@@ -84,16 +84,16 @@ int main(int argc, char ** argv){
     
     // Association de l’adressage préparé avec la socket d’écoute
     CHECK(bind(se,(struct sockaddr *) &svc, sizeof svc), "Can't bind");
-    puts("Bind socket écoute");
+    //puts("Bind socket écoute");
     
     svcLen = sizeof(svc);
-    CHECK(getsockname(se,(struct sockaddr *) &svc,&svcLen),"test");
-    printf("port : %d\n",ntohs(svc.sin_port));
-    printf("address : %s\n",inet_ntoa(svc.sin_addr));
+    CHECK(getsockname(se,(struct sockaddr *) &svc,&svcLen),"Can't get sockname");
+    printf("Port : %d\n",ntohs(svc.sin_port));
+    printf("Adresse : %s\n",inet_ntoa(svc.sin_addr));
     
     // Mise en écoute de la socket
     CHECK(listen(se, MAX_PLAYER) , "Can't calibrate");
-    puts("Mise en écoute socket écoute");
+    //puts("Mise en écoute socket écoute");
 
     // Boucle permanente de service
     while (1) {
@@ -120,12 +120,12 @@ int main(int argc, char ** argv){
             cltLen = sizeof(clt);
             CHECK(sd=accept(se,(struct sockaddr *) &clt, &cltLen),"Can't connect");
             //Information sur l'utilisateur entrant
-            printf("New connection , socket fd is %d , ip is : %s , port : %d\n",
-                    sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
+            //printf("New connection , socket fd is %d , ip is : %s , port : %d\n",
+            //        sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
            
             //On envoie bienvenu
             write(sd,WELCOME,strlen(WELCOME)+1);
-            puts("Bienvenue envoyé !");   
+            //puts("Bienvenue envoyé !");   
                  
             //On ajoute sa socket, à la liste de socket enfant
             for (int i = 0; i < MAX_PLAYER; i++)   
