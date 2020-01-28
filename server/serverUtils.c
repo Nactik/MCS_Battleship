@@ -52,7 +52,6 @@ int connectToLobby(Sock sd, char * buffer){
     return 1;
 }
 
-
 int createLobby(Sock sd, char * buffer){
     char lobbyName[MAX_NAME_LOBBY];
     char ip[MAX_LENGTH_IP];
@@ -77,6 +76,7 @@ int addLobby(char * owner,char * lobbyName,char * ip, int port){
     for(int i=0;i<MAX_LOBBY;i++){
         //printf("%d\n",server.tabLobby[i].affected);
         if(server.tabLobby[i].affected == 0){
+            server.tabLobby[i].numero=i;
             //lobby = server.tabLobby[i];
             strcpy(server.tabLobby[i].nom,lobbyName);
             strcpy(server.tabLobby[i].ip,ip);   
