@@ -10,7 +10,7 @@
 /**
  * \brief Nombre de max de bateau que le joueur peut placer
  */
-#define MAX_SHIP    2
+#define MAX_SHIP    5
 
 #define WATER       0
 #define SHIP        1

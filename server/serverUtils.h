@@ -81,8 +81,9 @@ Sock client_socket[MAX_PLAYER];
  * 
  * \param sd Socket de discussion avec le client
  * \param buffer Contient le pseudo du joueur
+ * \return int 1
  */
-void connectToServer(Sock * sd,char * buffer);
+int connectToServer(Sock * sd,char * buffer);
 
 /**
  * \brief Recupère les informations permettant de creer un lobby de la requete du client
