@@ -2,6 +2,8 @@
 
 int displayMenu(){
     int choix=0; 
+    puts("");
+    puts("");
     do
     {
         printf("\t----- MENU JEU BATAILLE NAVALE-----\n"); 
@@ -29,7 +31,7 @@ void printLobby(int sock){
     CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
 
     puts("\t+------+-------------------------+-------------------------+----------+");
-    printf("\t|%6s|%25s|%25s|%10s|\n","Numéro","Nom de la salle","Hébergeur","Joueurs");
+    printf("\t|%6s|%25s|%26s|%10s|\n","Numéro","Nom de la salle","Hébergeur","Joueurs");
     puts("\t+------+-------------------------+-------------------------+----------+");
     
     do {    
@@ -104,7 +106,7 @@ void * waitPlayer(void * arg){
 }
 
 void connectToLobby(int sock ){
-    char msgToSend[MAX_BUFF], msgToRead[MAX_BUFF], ip[MAX_LENGTH_IP];
+    char msgToSend[MAX_BUFF],content[MAX_BUFF],msgToRead[MAX_BUFF], ip[MAX_LENGTH_IP];
     int port,req,numLobby,sockLobby;
     struct sockaddr_in svc;
 
@@ -114,8 +116,10 @@ void connectToLobby(int sock ){
     CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
     CHECK(read(sock,msgToRead,sizeof(msgToRead)),"Can't Read");
 
-    sscanf (msgToRead, "%d:%[^:]:%d",&req,ip,&port);
+    sscanf (msgToRead, "%d:%[^:]",&req,content);
     if(req ==CONNECT_LOB_OK){
+        sscanf (content, "%[^:]:%d",ip,&port);
+
         printf("Création de la socket ...\n"); 
         CHECK(sockLobby=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
         
@@ -128,8 +132,12 @@ void connectToLobby(int sock ){
         //Demande d’une connexion au service
         printf("Demande de connexion au serveur ...\n"); 
         CHECK(connect(sockLobby, (struct sockaddr *)&svc, sizeof svc) , "Can't connect");
+
+        startGame(sockLobby,2);
+        shutdown(sockLobby,2);
+    } else if(req == ERREUR){
+        printf("\033[22;31m%s\x1b[0m \n\n",content);
     }
     
-    startGame(sockLobby,2);
-    shutdown(sockLobby,2);
+
 }

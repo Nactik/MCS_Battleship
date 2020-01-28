@@ -37,4 +37,5 @@
 #define ATTACK          500
 #define RESULT_ATK      600
 #define END_PLACING     700
+#define END_GAME        800
 #define ERREUR          -1

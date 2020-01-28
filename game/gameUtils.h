@@ -16,7 +16,7 @@ void placeShip();
 void showBoard(int board[MAX_LINE][MAX_COLUMN]);
 int checkBound(int line, int column);
 int hitShip(int line, int column);
-void waitAttack(int socket);
+int waitAttack(int socket);
 void updateBoard(char result, int line, int column,int * nbShipTouched);
 void attack(int socket,int * nbShipTouched);
 

@@ -13,32 +13,36 @@ void showBoard(int board[MAX_LINE][MAX_COLUMN])
 {
 
     int line, column;
+    
+    puts("");
+    puts("");
 
-        for(int i=0;i<MAX_LINE;i++){
-            printf("\t%d ",(i+1));
+    for(int i=0;i<MAX_LINE;i++){
+        printf("\t%d ",(i+1));
+    }
+    printf("\n");
+
+    for(line=0 ; line < MAX_LINE ; line++ ){
+        printf("%d",line+1);
+        for(column=0 ; column < MAX_COLUMN ; column++ ){
+            if(board[line][column]==WATER){
+                printf("\t\033[1;34m~\x1b[0m");
+            }else if(board[line][column]==SHIP){
+                printf("\t\033[22;32m*\x1b[0m");
+            }else if(board[line][column]==MISSED){
+                printf("\t\033[22;31mX\x1b[0m");
+            }
         }
         printf("\n");
-
-        for(line=0 ; line < MAX_LINE ; line++ ){
-            printf("%d",line+1);
-            for(column=0 ; column < MAX_COLUMN ; column++ ){
-                if(board[line][column]==WATER){
-                    printf("\t\033[1;34m~\x1b[0m");
-                }else if(board[line][column]==SHIP){
-                    printf("\t\033[22;32m*\x1b[0m");
-                }else if(board[line][column]==MISSED){
-                    printf("\t\033[22;31mX\x1b[0m");
-                }
-            }
-            printf("\n");
-        }
-
     }
+}
 
 int checkBound(int line, int column){
     if(line<=0 || line>MAX_LINE)
         return 0;
     if(column<=0 || column>MAX_COLUMN)
+        return 0;
+    if(oponentBoard[line][column] == SHIP)
         return 0;
     return 1;
 }
@@ -73,19 +77,25 @@ int hitShip(int line, int column)
     return 0;
 }
 
-void waitAttack(int socket){
+int waitAttack(int socket){
     char msgToSend[MAX_BUFF],buffer[MAX_BUFF],content[MAX_BUFF];
     int numReq,line,column;
     CHECK(read(socket,buffer,sizeof(buffer)),"Can't read");
     printf("Je reçois : %s\n",buffer);
     sscanf(buffer,"%d:%d:%d",&numReq,&line,&column);
-    if(hitShip(line,column) == 1){
-        sprintf(msgToSend,"%d:%c",RESULT_ATK,'T');
-    } else{
-        sprintf(msgToSend,"%d:%c",RESULT_ATK,'M');
+    if(numReq == ATTACK){
+        if(hitShip(line,column) == 1){
+            sprintf(msgToSend,"%d:%c",RESULT_ATK,'T');
+        } else{
+            sprintf(msgToSend,"%d:%c",RESULT_ATK,'M');
+        }
+        printf("J'envoie : %s\n",msgToSend);
+        CHECK(write(socket,msgToSend,strlen(msgToSend)+1),"Can't write");
+        return 0;
+    } else if(numReq == END_GAME){ //Si jamais on a perdu
+        return 1;
     }
-    printf("J'envoie : %s\n",msgToSend);
-    CHECK(write(socket,msgToSend,strlen(msgToSend)+1),"Can't write");
+    return 0;
 }
 
 void updateBoard(char result, int line, int column,int * nbShipTouched){
@@ -130,6 +140,7 @@ void attack(int socket,int * nbShipTouched){
 void startGame(int socket,int player) {
     char msgToSend[MAX_BUFF],buffer[MAX_BUFF];
     int nbShipTouched,numReq;
+    int lost = 0;
 
     //on init les plateau
     initializeBoards();
@@ -146,20 +157,25 @@ void startGame(int socket,int player) {
 
     nbShipTouched = 0; 
 
-    while(nbShipTouched != MAX_SHIP){
+    while(nbShipTouched != MAX_SHIP && lost != 1){
         if(player == 2){
-            waitAttack(socket);
+            lost = waitAttack(socket);
         }
-
         //showBoard(oponentBoard);
         attack(socket,&nbShipTouched);
 
         if(player ==1){
-            waitAttack(socket);
+            lost = waitAttack(socket);
         }
     }
 
-    puts("Bien joué, vous avez coulé la flotte adverse !");
-    showBoard(oponentBoard);
+    if(lost==0){
+        sprintf(msgToSend,"%d::",END_GAME);
+        CHECK(write(socket,msgToSend,strlen(msgToSend)+1),"Can't write");
+        puts("Bien joué, vous avez coulé la flotte adverse !");
+    }else {
+        puts("Dommage, vous avez perdu la partie !");
+    }
+
     puts("Retour au serveur de jeu");
 }
