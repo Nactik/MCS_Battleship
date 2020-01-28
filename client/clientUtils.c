@@ -116,7 +116,7 @@ void connectToLobby(int sock ){
     CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
     CHECK(read(sock,msgToRead,sizeof(msgToRead)),"Can't Read");
 
-    sscanf(msgToRead, "%d:%s",&req,content);
+    sscanf(msgToRead, "%d:%[^\n]",&req,content);
     if(req==CONNECT_LOB_OK){
         sscanf(content, "%[^:]:%d",ip,&port);
         printf("--> %s", content); 
