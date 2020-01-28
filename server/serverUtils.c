@@ -37,15 +37,15 @@ int connectToLobby(Sock sd, char * buffer){
     if(lobby < 0 || lobby >= server.nb){
         sprintf(line,"%d:Numéro de lobby invalide, veuillez réessayer",ERREUR);
         write(sd.socket,line,strlen(line)+1);
-    } else if(server.tabLobby[lobby].nb_joueur == 2){
-        /**Il faut spectate ici*/
-        sprintf(line,"%d:Salle plein,veuillez réessayer",ERREUR);
-        write(sd.socket,line,strlen(line)+1);
     }else {
-        server.tabLobby[lobby].nb_joueur ++;
         char * ip = server.tabLobby[lobby].ip;
         int port = server.tabLobby[lobby].port;
-        sprintf(line,"%d:%s:%d",CONNECT_LOB_OK,ip,port);
+        if(server.tabLobby[lobby].nb_joueur == 2){
+            sprintf(line,"%d:%s:%d",SPECT_LOB,ip,port);
+        } else {
+            sprintf(line,"%d:%s:%d",CONNECT_LOB_OK,ip,port);
+            server.tabLobby[lobby].nb_joueur ++;
+        }
         write(sd.socket,line,strlen(line)+1);
     }
 
@@ -70,14 +70,22 @@ int createLobby(Sock sd, char * buffer){
     return addLobby(sd.client.pseudo,lobbyName,ip,port);
 }
 
+int deleteLobby(char * owner){
+    for(int i=0;i<MAX_LOBBY;i++){
+        if(strcmp(owner,server.tabLobby[i].owner.pseudo) == 0){
+            server.tabLobby[i].affected = 0;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int addLobby(char * owner,char * lobbyName,char * ip, int port){
     //puts("Ajout d'un lobby ...");
-    Lobby lobby;
     for(int i=0;i<MAX_LOBBY;i++){
         //printf("%d\n",server.tabLobby[i].affected);
         if(server.tabLobby[i].affected == 0){
             server.tabLobby[i].numero=i;
-            //lobby = server.tabLobby[i];
             strcpy(server.tabLobby[i].nom,lobbyName);
             strcpy(server.tabLobby[i].ip,ip);   
             server.tabLobby[i].port = port;

@@ -13,7 +13,7 @@ void deroute(int sig){
         break;
     }
 }
-int dialogueSrv (int sock, struct sockaddr_in srv, int * sock_lobby) {
+int dialogueSrv (int sock, struct sockaddr_in srv) {
     
     int choix, numLobby,numReq; 
     char msgToSend[MAX_BUFF], msgToRead[MAX_BUFF]; 
@@ -30,6 +30,11 @@ int dialogueSrv (int sock, struct sockaddr_in srv, int * sock_lobby) {
     CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
     CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
     sscanf(msgToRead,"%d:%[^:]",&numReq,buffer);
+    if(numReq == ERREUR){
+        printf("\033[22;31m%s\x1b[0m \n\n",buffer);
+        return -1;
+    }
+    
     printf("%s\n",buffer);
 
     do{
@@ -40,7 +45,7 @@ int dialogueSrv (int sock, struct sockaddr_in srv, int * sock_lobby) {
                 printLobby(sock);
             break; 
             case 2: //Créer un lobby
-                createLobby(sock, sock_lobby); 
+                createLobby(sock); 
                 break;
             case 3: //Jouer sur un lobby existant ou etre spectateur sur une partie en cours
                 connectToLobby(sock);
@@ -60,7 +65,7 @@ int dialogueSrv (int sock, struct sockaddr_in srv, int * sock_lobby) {
 
 int main(int argc, char ** argv){
     
-    int sock, cltlen, sock_lobby;
+    int sock, cltlen;
     struct sockaddr_in svc;
     struct sockaddr_in clt;
 
@@ -91,8 +96,7 @@ int main(int argc, char ** argv){
     //printf("Client -> [ %s ] utilise le port %d pour communiquer.\n\n", inet_ntoa(clt.sin_addr), ntohs(clt.sin_port)); 
     
     //Dialogue avec le serveur
-    dialogueSrv(sock, svc, &sock_lobby);
-    shutdown(sock_lobby, 2);
+    dialogueSrv(sock, svc);
     shutdown(sock,2);
     
     return 0;

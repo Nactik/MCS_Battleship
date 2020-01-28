@@ -51,15 +51,13 @@ void printLobby(int sock){
     puts("\t+------+-------------------------+-------------------------+----------+");
 }
 
-void createLobby(int sock_server, int * sock_lobby){
-    int sockLen; 
+void createLobby(int sock_server){
+    int sockLen,req,sock_lobby; 
     void * ret;
     char buffer[MAX_BUFF], msgToSend[MAX_BUFF];
     struct sockaddr_in svc_lobby;
 
-    printf("Veuillez indiquer un nom de salle: "); 
-    scanf("%s", buffer); 
-    CHECK(*sock_lobby=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
+    CHECK(sock_lobby=socket(AF_INET, SOCK_STREAM, 0), "Can't create");
     
     //Préparation de l’adressage du service à contacte
     svc_lobby.sin_family = AF_INET;
@@ -68,24 +66,52 @@ void createLobby(int sock_server, int * sock_lobby){
     memset(&svc_lobby.sin_zero, 0, 8);
 
     //Mise en place du bind
-    CHECK(bind(*sock_lobby,(struct sockaddr *) &svc_lobby, sizeof svc_lobby), "Can't bind");
+    CHECK(bind(sock_lobby,(struct sockaddr *) &svc_lobby, sizeof svc_lobby), "Can't bind");
 
     //Récupération des data socket côté client
     sockLen = sizeof(svc_lobby); 
-    CHECK(getsockname(*sock_lobby, (struct sockaddr *) &svc_lobby, &sockLen), "Can't get sockname"); 
+    CHECK(getsockname(sock_lobby, (struct sockaddr *) &svc_lobby, &sockLen), "Can't get sockname"); 
+
+    printf("Veuillez indiquer un nom de salle: "); 
+    scanf("%s", buffer); 
+
     sprintf(msgToSend, "%d:%s:%d", CREATE_LOB, buffer,  ntohs(svc_lobby.sin_port)); 
     CHECK(write(sock_server, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
 
-    // Mise en écoute de la socket
-    CHECK(listen(*sock_lobby, 1) , "Can't calibrate");
-    puts("Mise en écoute socket écoute"); 
-    mutex = sem_open("/mutex",O_CREAT,666,1);
-    sem_wait(mutex);
-    pthread_t monThread = pthread_create(&monThread,NULL,waitPlayer,(void *) sock_lobby);
-    pthread_join(monThread,&ret);
-    sem_wait(mutex);
-    CHECK(sem_close(mutex),"Erreur destruction mutex"); //On detruit la mutex
-    CHECK(sem_unlink("/mutex"),"Erreur unlink mutex"); //On unlink la mutex
+    CHECK(read(sock_server,buffer,sizeof(buffer)),"Can't read");
+    sscanf(buffer,"%d:%[\n]",&req,buffer);
+
+    if(req == CREATE_LOB_OK){
+        // Mise en écoute de la socket
+        CHECK(listen(sock_lobby, 1) , "Can't calibrate");
+        puts("Mise en écoute socket écoute"); 
+
+        //On ouvre la mutex qui suspend l'execution du process tant que le thread n'est pas fini
+        mutex = sem_open("/mutex",O_CREAT,666,1);
+        sem_wait(mutex);
+        //Lancement du thread qui lance le jeu
+        pthread_t monThread = pthread_create(&monThread,NULL,waitPlayer,(void *) &sock_lobby);
+        pthread_join(monThread,&ret);
+        //On attend la fin du thread => de la mutex
+        sem_wait(mutex);
+        CHECK(sem_close(mutex),"Erreur destruction mutex"); //On detruit la mutex
+        CHECK(sem_unlink("/mutex"),"Erreur unlink mutex"); //On unlink la mutex
+        shutdown(sock_lobby,2);
+
+        sprintf(msgToSend, "%d:", DELETE_LOB); //On veut supprimer le lobby
+        CHECK(write(sock_server, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
+
+        CHECK(read(sock_server,buffer,sizeof(buffer)),"Can't read");
+        sscanf(buffer,"%d:%[\n]",&req,buffer);
+
+        if(req == DELETE_LOB_OK){
+            puts("Lobby supprimé");
+        }else{
+            printf("\033[22;31m%s\x1b[0m \n\n",buffer);
+        }
+    } else if (req == ERREUR){
+        printf("\033[22;31m%s\x1b[0m \n\n",buffer);
+    }
 }
 
 void * waitPlayer(void * arg){
@@ -101,7 +127,6 @@ void * waitPlayer(void * arg){
     //socket fd is %d , ip is : %s , port : %d\n", sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
     
     startGame(sd,1);
-    shutdown(*sock_lobby,2);
     sem_post(mutex);
     pthread_exit(0);
 }
@@ -132,11 +157,17 @@ void connectToLobby(int sock ){
         memset(&svc.sin_zero, 0, 8);
         
         //Demande d’une connexion au service
-        printf("Demande de connexion au serveur [%s] - [%d]...\n", ip, port); 
+        printf("Demande de connexion au serveur [%s] - [%d]...\n", ip, htons(port)); 
         CHECK(connect(sockLobby, (struct sockaddr *)&svc, sizeof svc) , "Can't connect");
 
         startGame(sockLobby,2);
         shutdown(sockLobby,2);
+    } else if(req == SPECT_LOB){
+        sscanf(content, "%[^:]:%d",ip,&port);
+        puts("Salle pleine, ouverture du mode spectateur ...");
+        sleep(1);
+        sprintf(content,"firefox %s:%d &",ip, port);
+        system(content);
     } else if(req == ERREUR){
         printf("\033[22;31m%s\x1b[0m \n\n",content);
     }

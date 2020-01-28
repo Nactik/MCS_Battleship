@@ -17,7 +17,7 @@ int dialogueClt (Server * server, Sock * sd, struct sockaddr_in clt) {
                 sprintf(toSend,"%d:%s%s",CONNECT_SRV_OK,"Bienvenue ",sd->client.pseudo);
                 write(sd->socket,toSend,strlen(toSend)+1);
             } else {
-                sprintf(toSend,"%d,%s",ERREUR,"Une erreur est survenu !");
+                sprintf(toSend,"%d:%s",ERREUR,"Une erreur est survenu !");
                 write(sd->socket,toSend, strlen(toSend)+1);
             }
             break;
@@ -25,17 +25,28 @@ int dialogueClt (Server * server, Sock * sd, struct sockaddr_in clt) {
         case CREATE_LOB : 
             //puts("CREATION LOBBY");
             if(createLobby(*sd,content) == -1){
-                sprintf(toSend,"%d,%s",ERREUR,"Nombre de lobby max atteint !");
+                sprintf(toSend,"%d:%s",ERREUR,"Nombre de lobby max atteint !");
                 write(sd->socket,toSend, strlen(toSend)+1);
             } else {
-                sprintf(toSend,"%d,%s",CREATE_LOB_OK,"Le lobby a bien été crée !");
+                sprintf(toSend,"%d:%s",CREATE_LOB_OK,"Le lobby a bien été crée !");
                 write(sd->socket,toSend, strlen(toSend)+1);
             }
             break;
+        
+        case DELETE_LOB:
+            if(deleteLobby(sd->client.pseudo) == 0){
+                sprintf(toSend,"%d:%s",ERREUR,"Erreur lors de la suppression d'un lobby !");
+                write(sd->socket,toSend, strlen(toSend)+1);
+            } else {
+                sprintf(toSend,"%d:%s",DELETE_LOB_OK,"Le lobby a bien été supprimé !");
+                write(sd->socket,toSend, strlen(toSend)+1);
+            }
+            break;
+
         case CONNECT_LOB: 
             connectToLobby(*sd,content);
             break;
-
+        
         case PRINT_LOB:
             //puts("Affichage lobby");
             printLobby(*sd);

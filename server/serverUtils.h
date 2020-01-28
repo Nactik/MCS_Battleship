@@ -34,6 +34,7 @@ Sock client_socket[MAX_PLAYER];
 int addPlayer(Sock * sd,char * pseudo);
 int connectToServer(Sock * sd,char * buffer);
 int createLobby(Sock sd,char * buffer);
+int deleteLobby(char * owner);
 int connectToLobby(Sock sd, char * buffer);
 void printLobby(Sock sd);
 int addLobby(char * owner,char * lobbyName,char * ip, int port);

@@ -27,8 +27,11 @@
 #define CONNECT_SRV_OK  102
 #define CREATE_LOB      200
 #define CREATE_LOB_OK   202
+#define DELETE_LOB      203
+#define DELETE_LOB_OK   204
 #define CONNECT_LOB     300
 #define CONNECT_LOB_OK  302
+#define SPECT_LOB       303
 #define PRINT_LOB       400
 #define HAS_LOBBY       401
 #define END_LOBBY       402
