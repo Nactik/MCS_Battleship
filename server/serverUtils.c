@@ -47,7 +47,7 @@ void connectToLobby(Sock sd, char * buffer){
         //On check si le lobby est plein ou non
         if(server.tabLobby[lobby].nb_joueur == 2){
             //On prepare la requete pour spectate
-            sprintf(line,"%d:%s:%d",SPECT_LOB,ip,port);
+            sprintf(line,"%d:%s:%d",SPECT_LOB,ip,80);
         } else {
             //On prepare la requete pour se connecter
             sprintf(line,"%d:%s:%d",CONNECT_LOB_OK,ip,port);
