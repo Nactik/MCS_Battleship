@@ -66,7 +66,7 @@ int createLobby(Sock sd, char * buffer){
     int cltLen = sizeof(clt);
 
     //On recupère l'ip du client
-    CHECK(getsockname(sd.socket,(struct sockaddr *) &clt,&cltLen),"test");
+    CHECK(getsockname(sd.socket,(struct sockaddr *) &clt,&cltLen),"erreur getsockname");
     strcpy(ip,inet_ntoa(clt.sin_addr));
     
     //printf("%s\n",buffer);
