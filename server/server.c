@@ -2,7 +2,6 @@
 
 int dialogueClt (Server * server, Sock * sd, struct sockaddr_in clt) {
     char receive[MAX_BUFF];
-    char requete[MAX_BUFF];
     char content[MAX_BUFF];
     int req;
     char toSend[MAX_BUFF];
@@ -15,32 +14,29 @@ int dialogueClt (Server * server, Sock * sd, struct sockaddr_in clt) {
         case CONNECT_SRV : 
             if(connectToServer(sd,content) == 1){
                 sprintf(toSend,"%d:%s%s",CONNECT_SRV_OK,"Bienvenue ",sd->client.pseudo);
-                write(sd->socket,toSend,strlen(toSend)+1);
             } else {
                 sprintf(toSend,"%d:%s",ERREUR,"Une erreur est survenu !");
-                write(sd->socket,toSend, strlen(toSend)+1);
             }
+            CHECK(write(sd->socket,toSend,strlen(toSend)+1),"Can't write");
             break;
             
         case CREATE_LOB : 
             //puts("CREATION LOBBY");
             if(createLobby(*sd,content) == -1){
                 sprintf(toSend,"%d:%s",ERREUR,"Nombre de lobby max atteint !");
-                write(sd->socket,toSend, strlen(toSend)+1);
             } else {
                 sprintf(toSend,"%d:%s",CREATE_LOB_OK,"Le lobby a bien été crée !");
-                write(sd->socket,toSend, strlen(toSend)+1);
             }
+            CHECK(write(sd->socket,toSend, strlen(toSend)+1),"Can't write");
             break;
         
         case DELETE_LOB:
             if(deleteLobby(sd->client.pseudo) == 0){
                 sprintf(toSend,"%d:%s",ERREUR,"Erreur lors de la suppression d'un lobby !");
-                write(sd->socket,toSend, strlen(toSend)+1);
             } else {
                 sprintf(toSend,"%d:%s",DELETE_LOB_OK,"Le lobby a bien été supprimé !");
-                write(sd->socket,toSend, strlen(toSend)+1);
             }
+            CHECK(write(sd->socket,toSend, strlen(toSend)+1),"Can't write");
             break;
 
         case CONNECT_LOB: 
@@ -51,14 +47,13 @@ int dialogueClt (Server * server, Sock * sd, struct sockaddr_in clt) {
             //puts("Affichage lobby");
             printLobby(*sd);
             //puts("J'ai fini l'affichage");
-
             break;
         case DISCONNECT:    
-            write(sd->socket, BYE, strlen(BYE)+1);
+            CHECK(write(sd->socket, BYE, strlen(BYE)+1),"Can't write");
             break;
         default : 
             sprintf(toSend,"%d,%s",ERREUR,"Une erreur est survenu !");
-            write(sd->socket,toSend, strlen(toSend)+1);
+            CHECK(write(sd->socket,toSend, strlen(toSend)+1),"Can't write");
             break;
     }
     return req;
