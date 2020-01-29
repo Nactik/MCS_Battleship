@@ -17,16 +17,15 @@ void showBoard(int board[MAX_LINE][MAX_COLUMN])
 
     int line, column;
     
-    puts("");
-    puts("");
-
+    printf("\n\n");
+    printf("\t");
     for(int i=0;i<MAX_LINE;i++){
         printf("\t%d ",(i+1));
     }
     printf("\n");
 
     for(line=0 ; line < MAX_LINE ; line++ ){
-        printf("%d",line+1);
+        printf("\t%d",line+1);
         for(column=0 ; column < MAX_COLUMN ; column++ ){
             if(board[line][column]==WATER){
                 //Vague bleue si c'est de l'eau
@@ -41,6 +40,7 @@ void showBoard(int board[MAX_LINE][MAX_COLUMN])
         }
         printf("\n");
     }
+    printf("\n\n");
 }
 
 int checkBound(int line, int column){
