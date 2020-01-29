@@ -7,7 +7,7 @@ int dialogueClt (Server * server, Sock * sd, struct sockaddr_in clt) {
     char toSend[MAX_BUFF];
 
     CHECK(read(sd->socket, receive, sizeof(receive)),"erreur read");
-    sscanf (receive, "%d:%s",&req, content);
+    sscanf(receive, "%d:%s",&req, content);
     //printf("Req : %d\n", req);
     //printf("Buffer : %s \n",content);
     switch (req) {
