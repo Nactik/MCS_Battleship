@@ -1,10 +1,6 @@
 # MCS_Battleship
-Projet MCS tu connais, la bataille navale et tout 
+Projet Middleware Client-Server - Bataille navale jouable entre joueurs distant en C
 
 ## Installation
 
-Créer un fichier bin à la racine du projet, puis lancer make : 
-
-```bash
-make
-```
+Lancer la commande `make` à la racine du projet
