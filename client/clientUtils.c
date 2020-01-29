@@ -10,7 +10,7 @@ int displayMenu(){
         printf("\t\t 1) Lister les lobby \n"); 
         printf("\t\t 2) Créer un lobby \n"); 
         printf("\t\t 3) Jouer sur un lobby \n"); 
-        printf("\t\t 4) Etre spectateur sur un lobby \n"); 
+        printf("\t\t 4) Etre spectateur sur un lobby \n");
         printf("\t\t 5) Quitter \n"); 
         scanf("%d", &choix); 
     } while (choix>5||choix<1);
@@ -27,6 +27,7 @@ void printLobby(int sock){
     char owner[MAX_PLAYER_NAME];
     int nbPlayer;
 
+    //On prepare la requete et on l'envoie
     sprintf(msgToSend, "%d", PRINT_LOB); 
     CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
 
@@ -35,6 +36,7 @@ void printLobby(int sock){
     puts("\t+------+-------------------------+-------------------------+----------+");
     
     do {    
+        //On read les lobby tant que l'on recois pas la fin de lobby (END_LOBBY)
         CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
         sscanf (msgToRead, "%d:%d:%[^:]:%[^:]:%d", &numReq, &numLobby,lobbyName,owner,&nbPlayer);
         if(numReq == HAS_LOBBY){
@@ -81,7 +83,7 @@ void createLobby(int sock_server){
     CHECK(read(sock_server,buffer,sizeof(buffer)),"Can't read");
     sscanf(buffer,"%d:%[\n]",&req,buffer);
 
-    if(req == CREATE_LOB_OK){
+    if(req == CREATE_LOB_OK){ //Si la création s'est bien passée
         // Mise en écoute de la socket
         CHECK(listen(sock_lobby, 1) , "Can't calibrate");
         puts("Mise en écoute socket écoute"); 
@@ -127,7 +129,7 @@ void * waitPlayer(void * arg){
     //socket fd is %d , ip is : %s , port : %d\n", sd, inet_ntoa(clt.sin_addr) , ntohs(clt.sin_port));   
     
     startGame(sd,1);
-    sem_post(mutex);
+    sem_post(mutex); //On rend la mutex quand le jeu est fini
     pthread_exit(0);
 }
 
@@ -138,10 +140,11 @@ void connectToLobby(int sock ){
 
     printf("Veuillez indiquer le numéro de sur lequel jouer:"); 
     scanf("%d", &numLobby);
+
     sprintf(msgToSend, "%d:%d", CONNECT_LOB, numLobby); 
     CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't write"); //On envoie la req
-    CHECK(read(sock,msgToRead,sizeof(msgToRead)),"Can't Read");
 
+    CHECK(read(sock,msgToRead,sizeof(msgToRead)),"Can't Read");
     sscanf(msgToRead, "%d:%[^\n]",&req,content);
     if(req==CONNECT_LOB_OK){
         sscanf(content, "%[^:]:%d",ip,&port);
@@ -163,6 +166,7 @@ void connectToLobby(int sock ){
         startGame(sockLobby,2);
         shutdown(sockLobby,2);
     } else if(req == SPECT_LOB){
+        //Salle pleine, on ouvre le mode spectateur
         sscanf(content, "%[^:]:%d",ip,&port);
         puts("Salle pleine, ouverture du mode spectateur ...");
         sleep(1);

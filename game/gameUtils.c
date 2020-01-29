@@ -3,10 +3,13 @@
 void initializeBoards()
 {
     int line, column;
-        for(line=0 ; line < MAX_LINE ; line++ )
-            for(column=0 ; column < MAX_COLUMN ; column++ )
-                myBoard[line][column]=WATER;
-                oponentBoard[line][column]=WATER;
+    //On rempli les plateux de jeu avec de l'eau
+    for(line=0 ; line < MAX_LINE ; line++ ){
+        for(column=0 ; column < MAX_COLUMN ; column++ ){
+            myBoard[line][column]=WATER;
+            oponentBoard[line][column]=WATER;
+        }
+    }
 }
 
 void showBoard(int board[MAX_LINE][MAX_COLUMN])
@@ -26,10 +29,13 @@ void showBoard(int board[MAX_LINE][MAX_COLUMN])
         printf("%d",line+1);
         for(column=0 ; column < MAX_COLUMN ; column++ ){
             if(board[line][column]==WATER){
+                //Vague bleue si c'est de l'eau
                 printf("\t\033[1;34m~\x1b[0m");
             }else if(board[line][column]==SHIP){
+                //Etoile verte si c'est un bateau
                 printf("\t\033[22;32m*\x1b[0m");
             }else if(board[line][column]==MISSED){
+                //Croix rouge si on a manqué
                 printf("\t\033[22;31mX\x1b[0m");
             }
         }

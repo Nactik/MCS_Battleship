@@ -26,10 +26,12 @@ int dialogueSrv (int sock, struct sockaddr_in srv) {
     //Entrée des infos du joueur et envoi au serveur(pseudo, ...)
     printf("Veuillez entrer votre nom d'utilisateur (MAX: %d caractères):\t", MAX_PLAYER_NAME); 
     scanf("%s", pseudo); 
+    //On prepare les requete et on envoie
     sprintf(msgToSend, "%d:%s",CONNECT_SRV, pseudo); 
     CHECK(write(sock, msgToSend, strlen(msgToSend)+1), "Can't send");
     CHECK(read(sock, msgToRead, sizeof(msgToRead)), "Can't read");
     sscanf(msgToRead,"%d:%[^:]",&numReq,buffer);
+    //On check la reponse
     if(numReq == ERREUR){
         printf("\033[22;31m%s\x1b[0m \n\n",buffer);
         return -1;
@@ -97,6 +99,7 @@ int main(int argc, char ** argv){
     
     //Dialogue avec le serveur
     dialogueSrv(sock, svc);
+    //On close la socket de discussion avec le serveur
     shutdown(sock,2);
     
     return 0;
