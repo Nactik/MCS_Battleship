@@ -6,6 +6,5 @@ Projet MCS tu connais, la bataille navale et tout
 Créer un fichier bin à la racine du projet, puis lancer make : 
 
 ```bash
-mkdir bin
 make
 ```
